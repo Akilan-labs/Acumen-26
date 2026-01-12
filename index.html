@@ -22,14 +22,12 @@
             --obsidian: #020202;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; overflow-x: hidden; background-color: var(--obsidian); }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--obsidian);
             color: #ffffff;
-            overflow-x: hidden;
-            width: 100%;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -46,41 +44,42 @@
             pointer-events: none;
         }
 
+        /* Responsive Heading Scaling - Fixed for Laptops */
         .hero-title {
-            font-size: clamp(3rem, 15vw, 14rem);
-            letter-spacing: -0.06em;
-            line-height: 0.8;
+            font-size: clamp(2.5rem, 10vw, 10rem);
+            letter-spacing: -0.04em;
+            line-height: 0.9;
             text-align: center;
-            background: linear-gradient(180deg, #fff 30%, var(--fire) 100%);
+            background: linear-gradient(180deg, #fff 40%, var(--fire) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 20px rgba(255, 157, 0, 0.3));
-        }
-
-        /* Responsive Container */
-        .portal-container {
-            width: 100%;
-            max-width: 1400px;
+            filter: drop-shadow(0 0 15px rgba(255, 157, 0, 0.2));
+            max-width: 100%;
             margin: 0 auto;
-            padding: 0 1.5rem;
         }
 
-        /* Structural Cards - NO OVERLAP FIX */
+        .section-heading {
+            font-size: clamp(1.8rem, 6vw, 5rem);
+            line-height: 1.1;
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+
+        /* Structural Cards */
         .event-card {
-            background: rgba(15, 15, 15, 0.9);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            height: auto; /* Dynamic height based on content */
+            background: rgba(15, 15, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            height: 100%;
             display: flex;
             flex-direction: column;
         }
 
         .event-card:hover {
             border-color: var(--fire);
-            transform: translateY(-8px);
-            background: rgba(20, 20, 20, 0.98);
+            transform: translateY(-5px);
+            background: rgba(25, 25, 25, 0.95);
         }
 
         .btn-molten {
@@ -88,12 +87,12 @@
             color: #000;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.2em;
-            padding: 1.25rem 2rem;
+            letter-spacing: 0.15em;
+            padding: 1rem 1.5rem;
             transition: all 0.3s ease;
             cursor: pointer;
             width: 100%;
-            display: block;
+            display: inline-block;
             text-align: center;
         }
 
@@ -103,30 +102,31 @@
             box-shadow: 0 0 30px var(--fire-glow);
         }
 
-        /* Expansion Logic - Animation Safe */
+        /* Safe Expansion Logic */
         .expandable-content {
             display: none;
             padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
             margin-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .card-active .expandable-content {
             display: block;
         }
 
-        @keyframes bar-move {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(300%); }
-        }
-        .loading-bar {
-            height: 4px;
+        .loading-line {
+            height: 3px;
             background: var(--fire);
-            width: 30%;
-            animation: bar-move 2s infinite linear;
+            width: 40%;
+            animation: slide 2s infinite linear;
         }
 
-        ::-webkit-scrollbar { width: 4px; }
+        @keyframes slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(250%); }
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: var(--fire); border-radius: 10px; }
     </style>
 </head>
@@ -139,7 +139,7 @@
     <nav class="fixed top-0 w-full z-[150] px-6 py-6 transition-all duration-500" id="nav">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-                <div class="bg-[var(--fire)] p-2 rounded-sm rotate-45 group-hover:rotate-[225deg] transition-transform duration-700">
+                <div class="bg-[var(--fire)] p-2 rounded-sm rotate-45 group-hover:rotate-[225deg] transition-transform duration-700 shadow-lg">
                     <i data-lucide="flame" class="text-black -rotate-45 group-hover:rotate-[135deg] transition-transform"></i>
                 </div>
                 <span class="font-header text-lg uppercase text-white font-black tracking-tighter">ACUMEN <span class="text-[var(--fire)] italic">26</span></span>
@@ -150,142 +150,139 @@
         </div>
     </nav>
 
-    <!-- MOBILE/LAPTOP MENU -->
+    <!-- MENU OVERLAY -->
     <div id="mobile-overlay" class="fixed inset-0 bg-black z-[140] flex flex-col items-center justify-center translate-y-full opacity-0 pointer-events-none transition-all duration-700 backdrop-blur-3xl">
-        <div class="flex flex-col gap-10 text-center font-black uppercase">
-            <a href="#hero" onclick="closeMenu()" class="text-5xl text-zinc-600 hover:text-[var(--fire)] transition-colors italic">Home</a>
-            <a href="#overview" onclick="closeMenu()" class="text-5xl text-zinc-600 hover:text-[var(--fire)] transition-colors italic">Spectrum</a>
-            <a href="#techno" onclick="closeMenu()" class="text-5xl text-zinc-600 hover:text-[var(--fire)] transition-colors italic">Combination</a>
-            <a href="#project" onclick="closeMenu()" class="text-5xl text-zinc-600 hover:text-[var(--fire)] transition-colors italic">Project</a>
-            <a href="#hackathon" onclick="closeMenu()" class="text-5xl text-zinc-600 hover:text-[var(--fire)] transition-colors italic">Hackathon</a>
-            <a href="#support" onclick="closeMenu()" class="text-5xl text-zinc-600 hover:text-[var(--fire)] transition-colors italic">Support</a>
+        <div class="flex flex-col gap-8 text-center font-black uppercase">
+            <a href="#hero" onclick="closeMenu()" class="text-4xl md:text-6xl text-zinc-700 hover:text-white transition-all italic">Identity</a>
+            <a href="#overview" onclick="closeMenu()" class="text-4xl md:text-6xl text-zinc-700 hover:text-white transition-all italic">Spectrum</a>
+            <a href="#techno" onclick="closeMenu()" class="text-4xl md:text-6xl text-zinc-700 hover:text-white transition-all italic">Combo Pass</a>
+            <a href="#hackathon" onclick="closeMenu()" class="text-4xl md:text-6xl text-zinc-700 hover:text-white transition-all italic">Hackathon</a>
+            <a href="#support" onclick="closeMenu()" class="text-4xl md:text-6xl text-zinc-700 hover:text-white transition-all italic">Support</a>
         </div>
     </div>
 
-    <!-- 1. HERO SECTION -->
+    <!-- HERO -->
     <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center px-6 py-24 text-center">
-        <div class="relative z-10 w-full max-w-5xl space-y-12">
+        <div class="w-full max-w-6xl space-y-12">
             <div id="hero-badge" class="inline-block bg-white/5 border border-white/10 px-8 py-3 rounded-full opacity-0">
-                <span class="text-[11px] font-mono font-black uppercase tracking-[0.4em] text-white">Kongu Engineering College</span>
+                <span class="text-[10px] md:text-xs font-mono font-black uppercase tracking-[0.4em] text-zinc-300">Kongu Engineering College</span>
             </div>
             <div class="space-y-6">
-                <h2 id="hero-dept" class="text-zinc-500 font-mono text-xs font-bold uppercase tracking-[0.6em] opacity-0 italic leading-relaxed text-center">Department of Electronics and Communication Engineering</h2>
-                <h3 id="hero-association" class="text-[var(--fire)] font-mono text-sm font-black uppercase tracking-[0.2em] opacity-0 italic text-center">ECE ASSOCIATION AND IETE STUDENT FORUM</h3>
-                <h1 id="hero-title" class="hero-title font-header uppercase opacity-0 scale-95 italic leading-none text-white">ACUMEN</h1>
+                <h2 id="hero-dept" class="text-zinc-500 font-mono text-[9px] md:text-xs font-bold uppercase tracking-[0.5em] opacity-0 italic leading-relaxed">Department of Electronics and Communication Engineering</h2>
+                <h3 id="hero-association" class="text-[var(--fire)] font-mono text-[10px] md:text-sm font-black uppercase tracking-[0.2em] opacity-0 italic">ECE ASSOCIATION AND IETE STUDENT FORUM</h3>
+                <h1 id="hero-title" class="hero-title font-header uppercase opacity-0 scale-95 italic">ACUMEN</h1>
             </div>
             <div id="hero-footer" class="opacity-0 space-y-12">
-                <div class="flex items-center justify-center gap-8">
-                    <div class="h-px w-24 bg-orange-900"></div>
-                    <span class="text-2xl md:text-7xl font-header font-black text-white italic uppercase leading-none tracking-tight">FEBRUARY 07, 2026</span>
-                    <div class="h-px w-24 bg-orange-900"></div>
+                <div class="flex items-center justify-center gap-6">
+                    <div class="h-[2px] w-12 md:w-24 bg-orange-900"></div>
+                    <span class="text-2xl md:text-7xl font-header font-black text-white italic uppercase tracking-tighter leading-none">FEBRUARY 07, 2026</span>
+                    <div class="h-[2px] w-12 md:w-24 bg-orange-900"></div>
                 </div>
-                <p class="text-[11px] font-mono font-black text-zinc-500 uppercase tracking-[1.5em] md:tracking-[2.5em]">Engineering the Future</p>
+                <p class="text-[9px] md:text-xs font-mono font-black text-zinc-600 uppercase tracking-[1.5em] md:tracking-[3em]">Engineering the Future</p>
             </div>
         </div>
     </section>
 
-    <!-- 2. SPECTRUM (OVERVIEW) -->
-    <section id="overview" class="py-32 portal-container border-t border-white/5">
-        <div class="grid lg:grid-cols-2 gap-20 mb-24 items-end text-left">
+    <!-- SPECTRUM -->
+    <section id="overview" class="py-32 px-6 max-w-7xl mx-auto border-t border-white/5">
+        <div class="grid lg:grid-cols-2 gap-16 mb-24 items-end text-left">
             <div class="space-y-6">
                 <span class="text-[var(--fire)] font-mono text-xs font-black uppercase tracking-widest border-l-4 border-[var(--fire)] pl-4">Protocol 01: Spectrum</span>
-                <h2 class="section-heading font-header font-black text-white italic text-left">Event<br/>Realms</h2>
+                <h2 class="section-heading font-header font-black text-white italic">Event<br/>Realms</h2>
             </div>
-            <p class="text-zinc-400 text-lg md:text-xl font-bold italic uppercase tracking-tight leading-relaxed text-left">
-                Specialized trials designed to challenge the limits of logic and hardware innovation. Your technical legacy starts in these domains.
+            <p class="text-zinc-400 text-lg md:text-xl font-bold italic uppercase leading-relaxed max-w-xl">
+                Technical trials engineered to test the limits of logic, coding, and hardware innovation.
             </p>
         </div>
         <div id="tracks-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
     </section>
 
-    <!-- 3. TECHNO PASS (COMBO) -->
+    <!-- TECHNO PASS -->
     <section id="techno" class="py-32 bg-[#050505] border-y border-white/5">
-        <div class="portal-container">
-            <div class="grid lg:grid-cols-5 gap-16 items-start text-left font-black">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-5 gap-16 items-start text-left">
                 <div class="lg:col-span-2 space-y-10">
                     <div class="space-y-4">
-                        <span class="text-[var(--fire)] font-mono text-xs font-black uppercase tracking-[0.4em]">Premium Access Protocol</span>
+                        <span class="text-[var(--fire)] font-mono text-xs font-black uppercase tracking-[0.4em]">Access Protocol</span>
                         <h2 class="section-heading font-header font-black text-white italic underline decoration-[var(--fire)] decoration-4 underline-offset-8">Techno-Pass</h2>
                     </div>
-                    <p class="text-zinc-200 text-xl font-bold italic leading-relaxed uppercase">The ultimate technical tri-factor: Ideathon, Codathon, and Circuitrix.</p>
-                    <div class="grid grid-cols-2 gap-8 border-y border-white/10 py-10">
-                        <div class="space-y-2">
-                            <span class="text-[11px] text-zinc-500 uppercase tracking-widest">Combination Entry</span>
-                            <div class="text-3xl md:text-4xl text-white font-black">₹200 <span class="text-xs text-zinc-500">/ HEAD</span></div>
+                    <p class="text-zinc-300 text-lg font-bold italic uppercase leading-relaxed">The ultimate tri-factor: Ideathon, Codathon, and Circuitrix.</p>
+                    <div class="grid grid-cols-2 gap-6 border-y border-white/10 py-10 font-black">
+                        <div>
+                            <span class="text-[10px] text-zinc-500 uppercase tracking-widest">Entry Fee</span>
+                            <div class="text-3xl text-white font-black">₹200 <span class="text-[10px] text-zinc-500">/ HEAD</span></div>
                         </div>
-                        <div class="space-y-2">
-                            <span class="text-[11px] text-zinc-500 uppercase tracking-widest">Squad Cap</span>
-                            <div class="text-3xl md:text-4xl text-white font-black italic">03 MEMBERS</div>
+                        <div>
+                            <span class="text-[10px] text-zinc-500 uppercase tracking-widest">Squad Cap</span>
+                            <div class="text-3xl text-white font-black italic">03 MEMBERS</div>
                         </div>
                     </div>
                     <button class="btn-molten btn-reg-trigger" data-event="combo">Authorize Combo Pass <i data-lucide="zap" class="inline-block ml-2"></i></button>
-                    <p class="text-[var(--fire)] font-mono text-[10px] font-black uppercase tracking-widest italic opacity-70">Note: Individual trial registration available below.</p>
                 </div>
                 <div id="combo-grid" class="lg:col-span-3 flex flex-col gap-6"></div>
             </div>
         </div>
     </section>
 
-    <!-- 4. PROJECT PRESENTATION -->
-    <section id="project" class="py-32 portal-container">
+    <!-- PROJECT PRESENTATION -->
+    <section id="project" class="py-32 px-6 max-w-7xl mx-auto">
         <div class="grid lg:grid-cols-2 gap-16 items-start text-left font-black">
-            <div class="space-y-10 text-left">
+            <div class="space-y-10">
                 <div class="space-y-4">
                     <span class="text-[var(--fire)] font-mono text-xs font-black uppercase tracking-widest px-4 py-1 border border-orange-900/50 rounded-full w-fit bg-orange-900/10">Standalone Trial</span>
                     <h2 class="section-heading font-header font-black text-white italic uppercase">Project<br/>Presentation</h2>
                 </div>
-                <p class="text-zinc-200 text-lg font-bold italic leading-relaxed uppercase">Participants showcase innovative projects, explaining design, implementation, and real-world impact to industry-standard expert panels.</p>
+                <p class="text-zinc-200 text-lg font-bold italic uppercase leading-relaxed">Participants showcase hardware/software projects, explaining design and real-world impact to expert panels.</p>
                 <div class="grid grid-cols-2 gap-8 border-y border-white/10 py-8">
-                    <div class="space-y-2">
-                        <span class="text-[11px] text-zinc-500 uppercase tracking-widest">Team Entry</span>
-                        <div class="text-4xl text-white font-black">₹200 <span class="text-sm text-zinc-500 font-bold uppercase">/ Team</span></div>
+                    <div>
+                        <span class="text-[10px] text-zinc-500 uppercase tracking-widest">Team Entry</span>
+                        <div class="text-4xl text-white font-black">₹200 <span class="text-[10px] text-zinc-500 font-bold uppercase">/ Team</span></div>
                     </div>
-                    <div class="space-y-2 text-right">
-                        <span class="text-[11px] text-zinc-500 uppercase tracking-widest">Squad Limit</span>
-                        <div class="text-4xl text-white font-black italic">03 Members</div>
+                    <div class="text-right">
+                        <span class="text-[10px] text-zinc-500 uppercase tracking-widest">Squad Limit</span>
+                        <div class="text-3xl text-white font-black italic">03 Members</div>
                     </div>
                 </div>
                 <button class="btn-molten btn-reg-trigger" data-event="project">Initialize Registration <i data-lucide="presentation" class="inline-block ml-2"></i></button>
-                <div class="pt-6 font-mono text-[var(--fire)] text-xs font-black uppercase space-y-1 italic border-l-2 border-orange-900/30 pl-4">
+                <div class="pt-4 font-mono text-[var(--fire)] text-xs font-black uppercase space-y-1 italic border-l-2 border-orange-900/40 pl-4">
                     <p>Zakiyaa Sulthana - 82488 06467</p>
                     <p>Sangamithra - 95669 92390</p>
                 </div>
             </div>
-            <div class="event-card p-10 md:p-14 rounded-3xl font-black uppercase italic">
+            <div class="event-card p-10 md:p-14 rounded-3xl font-black uppercase italic text-left">
                 <h3 class="text-xl font-header text-white mb-8 border-b border-white/10 pb-4">Protocol Rules</h3>
                 <ul class="space-y-6 text-zinc-300 text-sm font-bold leading-relaxed">
-                    <li class="flex gap-4"><span class="text-[var(--fire)]">01</span> Physical prototype mandatory for on-site evaluation.</li>
-                    <li class="flex gap-4"><span class="text-[var(--fire)]">02</span> Abstract submission limit: 400 words via Google Form.</li>
-                    <li class="flex gap-4"><span class="text-[var(--fire)]">03</span> Submission of working model video is compulsory.</li>
+                    <li class="flex gap-4"><span class="text-[var(--fire)] font-black">01</span> Physical prototype mandatory for evaluation.</li>
+                    <li class="flex gap-4"><span class="text-[var(--fire)] font-black">02</span> Abstract submission limit: 400 words.</li>
+                    <li class="flex gap-4"><span class="text-[var(--fire)] font-black">03</span> Submission of working model video is compulsory.</li>
                 </ul>
-                <p class="mt-8 text-[10px] text-zinc-500 font-black tracking-widest text-left">NOTE: One registration per team is sufficient.</p>
+                <p class="mt-8 text-[10px] text-zinc-600 font-black tracking-widest">One registration per team required.</p>
             </div>
         </div>
     </section>
 
-    <!-- 5. WORKSHOPS GRID -->
-    <section id="workshops" class="py-32 portal-container border-t border-white/5">
-        <div class="text-center mb-24 space-y-4">
-            <span class="text-[var(--fire)] font-mono text-xs font-bold uppercase tracking-widest">Laboratory Training Sessions</span>
+    <!-- WORKSHOPS -->
+    <section id="workshops" class="py-32 px-6 max-w-7xl mx-auto border-t border-white/5">
+        <div class="text-center mb-20 space-y-4">
+            <span class="text-[var(--fire)] font-mono text-xs font-bold uppercase tracking-widest block font-black">Laboratory Training Sessions</span>
             <h2 class="section-heading font-header font-black text-white italic text-center uppercase">Master Workshops</h2>
         </div>
         <div id="workshops-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
     </section>
 
-    <!-- 6. HACKATHON -->
+    <!-- HACKATHON -->
     <section id="hackathon" class="py-32 bg-[#000] border-y border-white/5 text-left font-black">
-        <div class="portal-container">
+        <div class="max-w-7xl mx-auto px-6">
             <div class="grid lg:grid-cols-2 gap-16 items-start">
                 <div class="space-y-10">
                     <div class="space-y-4">
                         <span class="text-[var(--fire)] font-mono text-xs font-black uppercase tracking-[0.5em] block">Endurance Protocol</span>
                         <h2 class="section-heading font-header font-black text-white italic uppercase">6 Hour Hackathon</h2>
                     </div>
-                    <p class="text-zinc-100 text-lg font-bold italic leading-relaxed uppercase text-left">An intense innovation challenge promoting creativity, teamwork, and rapid hardware/software problem-solving.</p>
+                    <p class="text-zinc-100 text-lg font-bold italic uppercase leading-relaxed">Solve impactful real-world challenges through rapid hardware or software development within 360 minutes.</p>
                     
-                    <!-- THE STRICT RULE -->
-                    <div class="p-6 md:p-8 bg-orange-600/10 border-2 border-[var(--fire)] rounded-2xl relative overflow-hidden group shadow-[0_0_40px_rgba(255,157,0,0.1)]">
-                        <div class="flex gap-5 items-start relative z-10">
+                    <div class="p-6 md:p-8 bg-orange-600/10 border-2 border-[var(--fire)] rounded-2xl relative overflow-hidden group shadow-2xl text-left">
+                        <div class="flex gap-5 items-start">
                             <i data-lucide="alert-octagon" class="text-[var(--fire)] w-8 h-8 shrink-0 mt-1"></i>
                             <p class="text-[var(--fire)] font-black text-base md:text-lg leading-snug uppercase italic">
                                 No extra time will be provided under any circumstances. Teams are responsible for managing their time effectively.
@@ -293,44 +290,42 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-6 uppercase font-black">
+                    <div class="grid grid-cols-2 gap-6 uppercase font-black text-left">
                         <div class="p-8 event-card border-l-4 border-[var(--fire)]">
-                            <span class="text-[10px] text-zinc-500 block mb-2 font-black uppercase text-left">Team Fee</span>
-                            <span class="text-4xl text-white font-black text-left">₹300</span>
+                            <span class="text-[10px] text-zinc-500 block mb-2 font-black">Team Fee</span>
+                            <span class="text-3xl text-white font-black">₹300</span>
                         </div>
-                        <div class="p-8 event-card border-l-4 border-zinc-600 text-left">
-                            <span class="text-[10px] text-zinc-500 block mb-2 font-black uppercase text-left">Max Squad</span>
-                            <span class="text-3xl text-white font-black italic text-left">03 MEMBERS</span>
+                        <div class="p-8 event-card border-l-4 border-zinc-600">
+                            <span class="text-[10px] text-zinc-500 block mb-2 font-black">Max Squad</span>
+                            <span class="text-3xl text-white font-black italic uppercase">03 MEMBERS</span>
                         </div>
                     </div>
 
-                    <div class="pt-6 font-mono text-[var(--fire)] text-xs font-black uppercase space-y-2 italic border-l-2 border-orange-900/40 pl-4">
+                    <div class="pt-6 font-mono text-[var(--fire)] text-xs font-black uppercase space-y-2 italic border-l-2 border-orange-900/40 pl-4 text-left">
                         <p>Akilan M - 99426 67445</p>
                         <p>Logaprasad - 63812 39924</p>
                     </div>
                 </div>
 
-                <!-- HACKATHON BRIEFING PANEL -->
                 <div class="event-card p-10 md:p-14 rounded-[2.5rem] border-t-4 border-[var(--fire)] space-y-12">
                     <div class="space-y-6 text-left">
-                        <h3 class="text-xl font-header text-white uppercase italic text-center font-black">Mission Parameters</h3>
-                        <ul class="space-y-6 text-sm text-zinc-300 font-bold uppercase italic text-left">
+                        <h3 class="text-xl font-header text-white uppercase italic text-center font-black">Mission parameters</h3>
+                        <ul class="space-y-6 text-sm text-zinc-300 font-bold uppercase italic">
                             <li class="flex gap-4"><span class="text-[var(--fire)] font-black">▶</span> Problem statements will be released on Jan 20.</li>
                             <li class="flex gap-4"><span class="text-[var(--fire)] font-black">▶</span> Duration: 8:30 AM to 3:30 PM. Assembly is mandatory.</li>
-                            <li class="flex gap-4"><span class="text-[var(--fire)] font-black">▶</span> 50% implementation threshold required to enter final review rounds.</li>
-                            <li class="flex gap-4"><span class="text-[var(--fire)] font-black">▶</span> Hackathon participants are not permitted in any other events.</li>
+                            <li class="flex gap-4"><span class="text-[var(--fire)] font-black">▶</span> 50% implementation threshold required to enter final review.</li>
+                            <li class="flex gap-4"><span class="text-[var(--fire)] font-black">▶</span> participants restricted from entering other events.</li>
                         </ul>
                     </div>
                     <div class="pt-8 border-t border-white/10 space-y-10">
-                        <div class="bg-zinc-950/80 p-8 rounded-2xl border-4 border-orange-500/50 text-center font-black">
-                            <h4 class="text-[var(--fire)] font-mono text-2xl font-black uppercase tracking-tight underline underline-offset-8 mb-4">PROBLEM STATEMENTS RELEASE: JAN 20</h4>
-                            <p class="text-zinc-600 font-mono text-xs font-black uppercase italic">Protocol launch pending abstract submission.</p>
-                        </div>
-                        <div class="overflow-hidden bg-zinc-900 rounded-full h-1">
-                            <div class="loading-bar"></div>
+                        <div class="bg-zinc-950 p-8 rounded-2xl border-2 border-orange-500/30 text-center">
+                            <h4 class="text-[var(--fire)] font-mono text-xl font-black uppercase tracking-tight mb-4">Problem statements release: JAN 20</h4>
+                            <div class="w-full bg-zinc-900 h-1 overflow-hidden">
+                                <div class="loading-line"></div>
+                            </div>
                         </div>
                         <button class="btn-molten btn-reg-trigger shadow-2xl" data-event="hackathon">Access Mission Registration</button>
-                        <p class="text-zinc-600 font-mono text-[10px] font-black uppercase text-center italic">Jury’s decision is final and binding.</p>
+                        <p class="text-[10px] text-zinc-600 font-black uppercase text-center italic">Jury decision is final and binding.</p>
                     </div>
                 </div>
             </div>
@@ -338,14 +333,14 @@
     </section>
 
     <!-- SUPPORT HUB -->
-    <section id="support" class="py-32 portal-container text-center font-black uppercase">
+    <section id="support" class="py-32 px-6 max-w-7xl mx-auto border-t border-white/5 text-center font-black uppercase">
         <div class="mb-24 space-y-4">
-            <span class="text-[var(--fire)] font-mono text-xs font-black uppercase tracking-widest text-center block">Command Terminal</span>
-            <h2 class="section-heading font-header font-black text-white text-center italic font-black uppercase">Support Hub</h2>
-            <div class="h-1.5 w-24 bg-[var(--fire)] mx-auto mt-8 opacity-60"></div>
+            <span class="text-[var(--fire)] font-mono text-xs font-black uppercase tracking-widest block">Command Terminal</span>
+            <h2 class="section-heading font-header font-black text-white italic text-center uppercase">Support Hub</h2>
+            <div class="h-1.5 w-24 bg-[var(--fire)] mx-auto mt-8 opacity-60 shadow-[0_0_15px_var(--fire)]"></div>
         </div>
         <div class="max-w-4xl mx-auto">
-            <div class="event-card p-10 md:p-16 rounded-[3rem] space-y-12">
+            <div class="event-card p-10 md:p-16 rounded-[3rem] space-y-12 text-left">
                 <h3 class="text-lg font-header text-zinc-400 uppercase italic font-black text-center">Lead Protocol Coordination</h3>
                 <div id="coordinators-list" class="grid gap-6"></div>
             </div>
@@ -353,19 +348,19 @@
     </section>
 
     <!-- ADDRESS -->
-    <section id="address" class="py-32 portal-container border-t border-white/5 text-center font-black uppercase">
-        <div class="event-card p-12 rounded-[2.5rem] space-y-10 max-w-4xl mx-auto text-center">
+    <section id="address" class="py-32 px-6 max-w-4xl mx-auto border-t border-white/5 text-center font-black uppercase">
+        <div class="event-card p-12 rounded-[2.5rem] space-y-10 shadow-2xl text-center">
             <div class="p-3 bg-orange-500/10 rounded-full border border-orange-500/20 w-fit mx-auto text-[var(--fire)]">
                 <i data-lucide="map-pin" class="w-7 h-7"></i>
             </div>
-            <div class="space-y-4 text-center">
+            <div class="space-y-4">
                 <h4 class="text-2xl md:text-3xl font-header font-black text-white italic tracking-tighter">Kongu Engineering College</h4>
-                <div class="font-mono text-base font-black text-[var(--fire)] space-y-1 italic uppercase opacity-80 leading-relaxed text-center">
+                <div class="font-mono text-base font-black text-[var(--fire)] space-y-1 italic uppercase opacity-80 leading-relaxed">
                     <p>Perundurai, Erode District</p>
                     <p>Tamil Nadu – 638052, India</p>
                 </div>
-                <div class="pt-6">
-                    <a href="https://maps.app.goo.gl/aHHt3t113HmkCTMJ8" target="_blank" class="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-[var(--fire)] hover:text-white transition-all shadow-xl group">
+                <div class="pt-8">
+                    <a href="https://maps.app.goo.gl/aHHt3t113HmkCTMJ8" target="_blank" class="inline-flex items-center gap-3 bg-white text-black px-10 py-5 rounded-xl font-black uppercase text-xs tracking-[0.2em] hover:bg-[var(--fire)] hover:text-white transition-all shadow-xl group">
                         Navigate to Campus <i data-lucide="navigation-2" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                     </a>
                 </div>
@@ -375,20 +370,19 @@
 
     <!-- FOOTER -->
     <footer class="py-20 border-t border-zinc-900 bg-black text-center font-black uppercase">
-        <div class="portal-container space-y-12 text-center">
+        <div class="max-w-7xl mx-auto px-6 space-y-12">
             <div class="flex flex-wrap justify-center gap-10 opacity-60 text-[var(--fire)] font-black text-[10px] tracking-widest">
                 <span>#ACUMEN2026</span>
                 <span>#FIRE_AND_ASH</span>
                 <span>#ECE_KEC</span>
             </div>
-            <div class="pt-10 border-t border-white/5 flex flex-col items-center gap-2">
-                <span class="text-white/40 block tracking-[0.2em] text-[10px] md:text-[11px] font-black uppercase italic">Website Created by Akilan M</span>
+            <div class="pt-10 border-t border-white/5 text-center">
+                <span class="text-white/40 text-[10px] md:text-[11px] italic tracking-[0.2em]">Website Created by Akilan M</span>
             </div>
         </div>
     </footer>
 
     <script>
-        // CENTRAL REGISTRATION LINKS
         const LINKS = {
             hackathon: "https://docs.google.com/forms/d/e/1FAIpQLSfcGmGjA0ef85f_KGm9FWCQV-TOi94Je6UQj2Yw7DhuZTBGwQ/viewform?usp=sharing&ouid=102251713663255983759",
             ideathon: "https://docs.google.com/forms/d/e/1FAIpQLSfX_ZFqI7LVziKwiLfEIggu5aQMPZpRHF7BWzn1zn_Ugu-6LA/viewform?usp=sharing&ouid=102251713663255983759",
@@ -397,6 +391,7 @@
             cadence: "https://docs.google.com/forms/d/e/1FAIpQLSd1hpnT6VOxMGOL1aJHsFbtu1U25xWjvWiuWH1xYSX8k4QGcw/viewform?usp=sharing&ouid=102251713663255983759",
             drone: "https://docs.google.com/forms/d/e/1FAIpQLSeBuAHwc5V-uJ9sl4E9KPJYCyR3JbZSBuVC8S3IOuVz6HdXNw/viewform?usp=sharing&ouid=102251713663255983759",
             circuitrix: "https://docs.google.com/forms/d/e/1FAIpQLSc7s8hIOgfVyI6qgEgPTja6yyWEM2lLIG_d1frFOlsT2JpmFA/viewform?usp=sharing&ouid=102251713663255983759",
+            codathon: "https://docs.google.com/forms/d/e/1FAIpQLSfeGne-XroGjqjxhX6MG-s85iNdw62QiNuf69E1PkXAT-ylkQ/viewform?usp=header",
             combo: "#"
         };
 
@@ -405,7 +400,7 @@
                 { title: "Ideathon", icon: "lightbulb", desc: "Digital Strategy" },
                 { title: "Codathon", icon: "code", desc: "Logic Protocol" },
                 { title: "Circuitrix", icon: "cpu", desc: "Circuit Debug" },
-                { title: "Project Presentation", icon: "presentation", desc: "Hardware Innovation" },
+                { title: "Project Presentation", icon: "presentation", desc: "Innovation" },
                 { title: "6 Hour Hackathon", icon: "zap", desc: "Endurance Build" },
                 { title: "SDR Workshop", icon: "activity", desc: "Signal mastery" },
                 { title: "Drone Workshop", icon: "plane", desc: "Aerial Systems" },
@@ -413,13 +408,13 @@
             ],
             COMBO_EVENTS: [
                 { title: "Ideathon", linkId: "ideathon", rules: ["Divya Bharathi - 90475 31785", "Iniya - 94868 93270", "Max 10 slides.", "7 min presentation."], desc: "Creative mind platform addressing real-world challenges through hardware/software concepts." },
-                { title: "Codathon", desc: "Solve extreme algorithms and data structures under pressure in a single-session sprint." },
-                { title: "Circuitrix", linkId: "circuitrix", rules: ["Daithiya Sudhan - 94860 16790", "Dhivashini - 86100 16280", "Laptop required.", "Free for Ideathon registrants."], desc: "Technical event testing practical skills in electronics and circuit design." }
+                { title: "Codathon", linkId: "codathon", desc: "Solve extreme algorithms and data structures under pressure in a single-session software sprint." },
+                { title: "Circuitrix", linkId: "circuitrix", rules: ["Daithiya Sudhan - 94860 16790", "Dhivashini - 86100 16280", "Free for Ideathon registrants."], desc: "Technical event testing practical skills in electronics and circuit design." }
             ],
             WORKSHOPS: [
                 { title: "SDR Workshop", fee: "₹200", rules: ["Hadi Rasool - 63819 52491", "Charu Nethra - 93613 53797"], desc: "Software Defined Radio fundamentals and real-time signal processing exposure.", linkId: "sdr" },
                 { title: "Drone Workshop", fee: "₹200", rules: ["Selva Brindha - 70105 45799", "Jayanivash - 94422 49452"], desc: "Design, flight control, and hands-on assembly of unmanned systems.", linkId: "drone" },
-                { title: "Cadence Workshop", fee: "₹200", rules: ["Kishanth Govindaraj - 90038 61457", "Bhavadharani - 88381 96997"], desc: "Hands-on semiconductor tool training for industry-standard VLSI workflows.", linkId: "cadence" }
+                { title: "Cadence Workshop", fee: "₹200", rules: ["Kishanth Govindaraj - 90038 61457", "Bhavadharani - 88381 96997"], desc: "Hands-on semiconductor tool training for industry-standard VLSI design workflows.", linkId: "cadence" }
             ],
             COORDINATORS: [
                 { name: "Akshavikaa P V", phone: "99407 02559" },
@@ -432,6 +427,7 @@
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#three-canvas'), alpha: true, antialias: true });
+        
         function updateSize() { renderer.setSize(window.innerWidth, window.innerHeight); camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); }
         updateSize();
         const posArray = new Float32Array(1000 * 3);
@@ -448,17 +444,17 @@
         function initAnimations() {
             gsap.registerPlugin(ScrollTrigger);
             const heroTL = gsap.timeline();
-            heroTL.to("#hero-badge", { opacity: 1, y: -10, duration: 1.2 })
+            heroTL.to("#hero-badge", { opacity: 1, y: -10, duration: 1.2, ease: "power4.out" })
                   .to("#hero-dept, #hero-association", { opacity: 1, y: -5, duration: 0.8, stagger: 0.3 }, "-=0.6")
-                  .to("#hero-title", { opacity: 1, scale: 1, duration: 1.5 }, "-=1")
-                  .to("#hero-footer", { opacity: 1, y: 0, duration: 1 }, "-=1.2");
+                  .to("#hero-title", { opacity: 1, scale: 1, duration: 1.5, ease: "expo.out" }, "-=1")
+                  .to("#hero-footer", { opacity: 1, y: 0, duration: 1, ease: "power4.out" }, "-=1.2");
 
             ScrollTrigger.create({
-                start: 'top -50',
+                start: 'top -80',
                 onUpdate: (self) => {
                     const nav = document.getElementById('nav');
-                    if (window.scrollY > 100) nav.classList.add('bg-black/90', 'backdrop-blur-lg', 'border-b', 'border-white/10', 'py-4');
-                    else nav.classList.remove('bg-black/90', 'backdrop-blur-lg', 'border-b', 'border-white/10', 'py-4');
+                    if (window.scrollY > 100) nav.classList.add('bg-black/90', 'backdrop-blur-xl', 'border-b', 'border-white/10', 'py-4');
+                    else nav.classList.remove('bg-black/90', 'backdrop-blur-xl', 'border-b', 'border-white/10', 'py-4');
                     document.getElementById('progress-bar').style.width = (self.progress * 100) + '%';
                 }
             });
@@ -466,47 +462,47 @@
 
         function renderContent() {
             document.getElementById('tracks-grid').innerHTML = DATA.TRACKS.map(t => `
-                <div class="p-10 event-card text-center group font-black uppercase">
-                    <div class="mb-5 text-[var(--fire)]"><i data-lucide="${t.icon}" class="w-8 h-8 mx-auto font-black uppercase"></i></div>
-                    <span class="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2 block uppercase">${t.desc}</span>
-                    <h3 class="font-header text-[12px] uppercase text-white font-black leading-none uppercase">${t.title}</h3>
+                <div class="p-10 event-card text-center group font-black text-left">
+                    <div class="mb-5 text-[var(--fire)]"><i data-lucide="${t.icon}" class="w-8 h-8 mx-auto"></i></div>
+                    <span class="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-600 mb-2 block">${t.desc}</span>
+                    <h3 class="font-header text-[12px] uppercase text-white font-black leading-none">${t.title}</h3>
                 </div>
             `).join('');
 
             document.getElementById('combo-grid').innerHTML = DATA.COMBO_EVENTS.map(t => `
-                <div onclick="this.classList.toggle('card-active')" class="p-8 event-card border-l-4 border-[var(--fire)] cursor-pointer uppercase">
+                <div onclick="this.classList.toggle('card-active')" class="p-8 event-card border-l-4 border-[var(--fire)] cursor-pointer text-left">
                     <div class="flex justify-between items-center w-full uppercase">
-                        <div class="text-left font-black uppercase">
-                            <span class="text-[var(--fire)] font-mono text-[10px] block mb-1 uppercase font-black uppercase">Combo Event</span>
-                            <h3 class="text-2xl text-white font-black uppercase font-black uppercase">${t.title}</h3>
+                        <div class="text-left font-black">
+                            <span class="text-[var(--fire)] font-mono text-[10px] block mb-1">Combo Event</span>
+                            <h3 class="text-2xl text-white font-black">${t.title}</h3>
                         </div>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-600 transition-transform font-black uppercase uppercase"></i>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-600 transition-transform"></i>
                     </div>
-                    <div class="expandable-content font-black text-left font-black uppercase uppercase font-black">
-                        <p class="text-zinc-400 text-base font-bold italic leading-relaxed uppercase uppercase uppercase">${t.desc}</p>
-                        ${t.rules ? `<ul class="mt-4 space-y-2 font-black italic uppercase font-black uppercase font-black font-black font-black uppercase">${t.rules.map(r => `<li class="text-[11px] text-zinc-500 font-black uppercase uppercase font-black uppercase"><span class="text-[var(--fire)] uppercase uppercase font-black font-black font-black uppercase">▶</span> ${r}</li>`).join('')}</ul>` : ''}
-                        ${t.linkId ? `<button class="mt-8 w-full py-4 bg-white text-black font-black uppercase text-[10px] rounded btn-reg-trigger shadow-2xl font-black uppercase font-black uppercase" data-event="${t.linkId}">Register for ${t.title}</button>` : ''}
+                    <div class="expandable-content font-black text-left">
+                        <p class="text-zinc-400 text-base font-bold italic leading-relaxed uppercase">${t.desc}</p>
+                        ${t.rules ? `<ul class="mt-4 space-y-2 font-black italic uppercase">${t.rules.map(r => `<li class="text-[11px] text-zinc-500 font-black"><span class="text-[var(--fire)]">▶</span> ${r}</li>`).join('')}</ul>` : ''}
+                        ${t.linkId ? `<button class="mt-8 w-full py-4 bg-white text-black font-black uppercase text-[10px] rounded btn-reg-trigger shadow-2xl" data-event="${t.linkId}">Register for ${t.title}</button>` : ''}
                     </div>
                 </div>
             `).join('');
 
             document.getElementById('workshops-grid').innerHTML = DATA.WORKSHOPS.map(t => `
-                <div class="p-10 event-card text-center space-y-8 font-black uppercase font-black uppercase font-black uppercase font-black uppercase font-black">
-                    <div class="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center mx-auto text-[var(--fire)] font-black uppercase font-black font-black font-black font-black"><i data-lucide="award" class="w-7 h-7 uppercase font-black font-black"></i></div>
-                    <h3 class="text-2xl font-header font-black text-white italic uppercase font-black uppercase font-black font-black font-black uppercase">${t.title}</h3>
-                    <p class="text-zinc-400 text-sm font-bold italic leading-relaxed uppercase font-black uppercase font-black uppercase font-black font-black font-black uppercase">${t.desc}</p>
-                    <div class="space-y-6 font-black uppercase font-black uppercase font-black uppercase font-black uppercase font-black">
-                        <span class="text-sm font-mono font-black text-white bg-orange-900/40 px-6 py-2 rounded-full border border-orange-900/50 uppercase tracking-widest font-black font-black font-black uppercase uppercase font-black font-black font-black uppercase uppercase font-black">${t.fee} / Person</span>
-                        <div class="text-[10px] text-zinc-500 font-black leading-tight space-y-1 font-black uppercase font-black font-black font-black font-black uppercase font-black font-black font-black uppercase font-black">${t.rules.map(r => `<p>${r}</p>`).join('')}</div>
-                        <button class="w-full py-5 bg-white text-black border-4 border-white/10 rounded-xl hover:bg-[var(--fire)] hover:text-white transition-all font-header text-[12px] uppercase tracking-widest font-black btn-reg-trigger shadow-2xl shadow-orange-500/20 text-center font-black uppercase uppercase font-black uppercase font-black font-black font-black font-black uppercase font-black font-black font-black" data-event="${t.linkId}">Initialize Registration</button>
+                <div class="p-10 event-card text-center space-y-8 font-black uppercase text-center">
+                    <div class="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center mx-auto text-[var(--fire)]"><i data-lucide="award" class="w-7 h-7"></i></div>
+                    <h3 class="text-2xl font-header font-black text-white italic uppercase leading-none">${t.title}</h3>
+                    <p class="text-zinc-400 text-sm font-bold italic leading-relaxed uppercase">${t.desc}</p>
+                    <div class="space-y-6">
+                        <span class="text-sm font-mono font-black text-white bg-orange-900/40 px-6 py-2 rounded-full border border-orange-500/20">${t.fee} / Person</span>
+                        <div class="text-[10px] text-zinc-600 font-black leading-tight space-y-1 italic">${t.rules.map(r => `<p>${r}</p>`).join('')}</div>
+                        <button class="w-full py-5 bg-white text-black font-black uppercase text-[11px] rounded btn-reg-trigger" data-event="${t.linkId}">Initialize Registration</button>
                     </div>
                 </div>
             `).join('');
 
             document.getElementById('coordinators-list').innerHTML = DATA.COORDINATORS.map(coord => `
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-8 border border-white/5 rounded-3xl hover:bg-white/5 transition-all font-black uppercase font-black font-black font-black font-black font-black uppercase font-black">
-                    <span class="text-xl font-header font-black text-white italic uppercase mb-2 sm:mb-0 font-black uppercase font-black font-black uppercase font-black uppercase font-black font-black font-black uppercase font-black font-black font-black uppercase font-black font-black uppercase uppercase">${coord.name}</span>
-                    <span class="text-[var(--fire)] font-mono text-xl font-black tracking-widest font-black uppercase font-black font-black uppercase font-black font-black font-black uppercase font-black font-black font-black uppercase font-black font-black uppercase font-black font-black font-black uppercase font-black uppercase uppercase">${coord.phone}</span>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-8 border border-white/5 rounded-3xl hover:bg-white/10 transition-all text-left">
+                    <span class="text-xl font-header font-black text-white italic uppercase">${coord.name}</span>
+                    <span class="text-[var(--fire)] font-mono text-xl font-black tracking-widest">${coord.phone}</span>
                 </div>
             `).join('');
 
@@ -524,8 +520,25 @@
         const menuBtn = document.getElementById('menu-toggle');
         const overlay = document.getElementById('mobile-overlay');
         let isMenuOpen = false;
-        menuBtn.addEventListener('click', () => { isMenuOpen = !isMenuOpen; overlay.style.transform = isMenuOpen ? 'translateY(0)' : 'translateY(100%)'; overlay.style.opacity = isMenuOpen ? '1' : '0'; overlay.style.pointerEvents = isMenuOpen ? 'all' : 'none'; document.getElementById('menu-icon').setAttribute('data-lucide', isMenuOpen ? 'x' : 'menu'); lucide.createIcons(); });
-        function closeMenu() { isMenuOpen = false; overlay.style.transform = 'translateY(100%)'; overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; document.getElementById('menu-icon').setAttribute('data-lucide', 'menu'); lucide.createIcons(); }
+        
+        menuBtn.addEventListener('click', () => { 
+            isMenuOpen = !isMenuOpen; 
+            overlay.style.transform = isMenuOpen ? 'translateY(0)' : 'translateY(100%)'; 
+            overlay.style.opacity = isMenuOpen ? '1' : '0'; 
+            overlay.style.pointerEvents = isMenuOpen ? 'all' : 'none'; 
+            document.getElementById('menu-icon').setAttribute('data-lucide', isMenuOpen ? 'x' : 'menu'); 
+            lucide.createIcons(); 
+        });
+
+        function closeMenu() { 
+            isMenuOpen = false; 
+            overlay.style.transform = 'translateY(100%)'; 
+            overlay.style.opacity = '0'; 
+            overlay.style.pointerEvents = 'none'; 
+            document.getElementById('menu-icon').setAttribute('data-lucide', 'menu'); 
+            lucide.createIcons(); 
+        }
+
         window.onload = () => { renderContent(); initAnimations(); };
     </script>
 </body>
