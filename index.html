@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACUMEN '26 | Fire & Ash | World Class Portal</title>
+    
+    <!-- Core Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@500;800&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --fire: #ff9d00; /* Electric Amber for maximum visibility */
+            --fire-glow: rgba(255, 157, 0, 0.4);
+            --obsidian: #020202;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--obsidian);
+            color: #ffffff;
+            overflow-x: hidden;
+            width: 100%;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-header { font-family: 'Syncopate', sans-serif; }
+        .font-mono { font-family: 'JetBrains+Mono', monospace; }
+
+        /* Cinematic Background */
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Responsive Clamping - Perfect Page Fit */
+        .hero-title {
+            font-size: clamp(2.5rem, 14vw, 15rem);
+            letter-spacing: -0.06em;
+            line-height: 0.8;
+            text-align: center;
+            background: linear-gradient(180deg, #fff 30%, var(--fire) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(255, 157, 0, 0.3));
+        }
+
+        .section-heading {
+            font-size: clamp(2rem, 9vw, 9rem);
+            line-height: 1;
+            text-transform: uppercase;
+            font-family: 'Syncopate', sans-serif;
+        }
+
+        /* Premium Glass Panels */
+        .premium-glass {
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .premium-glass:hover {
+            border-color: var(--fire);
+            background: rgba(25, 15, 5, 0.98);
+            transform: translateY(-8px);
+        }
+
+        /* Molten Buttons */
+        .btn-molten {
+            background: #fff;
+            color: #000;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            padding: 1.25rem 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .btn-molten:hover {
+            background: var(--fire);
+            color: #fff;
+            box-shadow: 0 0 30px var(--fire-glow);
+        }
+
+        @keyframes loading-bar {
+            0% { left: -100%; width: 30%; }
+            50% { width: 60%; }
+            100% { left: 100%; width: 30%; }
+        }
+        .animate-loading {
+            animation: loading-bar 3s infinite linear;
+        }
+
+        .locked-mission-card {
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255, 157, 0, 0.05),
+                rgba(255, 157, 0, 0.05) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+        }
+
+        .expandable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+            opacity: 0;
+        }
+
+        .card-active .expandable-content {
+            max-height: 1200px;
+            opacity: 1;
+            padding-top: 1.5rem;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--fire); border-radius: 10px; }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden text-left font-black uppercase">
+
+    <div id="progress-bar" class="fixed top-0 left-0 h-[4px] bg-[var(--fire)] z-[200] w-0 transition-all duration-300 shadow-[0_0_15px_var(--fire)]"></div>
+    <canvas id="three-canvas"></canvas>
+
+    <!-- NAVIGATION -->
+    <nav class="fixed top-0 w-full z-[150] px-4 md:px-12 py-6 transition-all duration-500" id="nav">
+        <div class="max-w-7xl mx-auto flex justify-between items-center text-left">
+            <div class="flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <div class="bg-[var(--fire)] p-2 rounded-sm rotate-45 group-hover:rotate-[225deg] transition-transform duration-700 shadow-[0_0_20px_var(--fire-glow)]">
+                    <i data-lucide="flame" class="text-black -rotate-45 group-hover:rotate-[135deg] transition-transform"></i>
+                </div>
+                <span class="font-header text-lg md:text-2xl tracking-tighter uppercase text-white font-black">ACUMEN <span class="text-[var(--fire)] italic font-black">26</span></span>
+            </div>
+
+            <div class="hidden lg:flex gap-12 font-mono text-[11px] font-bold uppercase tracking-[0.4em] text-zinc-300">
+                <a href="#hero" class="hover:text-[var(--fire)] transition-colors">Identity</a>
+                <a href="#overview" class="hover:text-[var(--fire)] transition-colors">Spectrum</a>
+                <a href="#techno" class="hover:text-[var(--fire)] transition-colors">Trials</a>
+                <a href="#project" class="hover:text-[var(--fire)] transition-colors">Presentation</a>
+                <a href="#hackathon" class="hover:text-[var(--fire)] transition-colors">Hackathon</a>
+                <a href="#support" class="hover:text-[var(--fire)] transition-colors">Support</a>
+            </div>
+
+            <button id="menu-toggle" class="bg-white/10 border border-white/20 p-3 rounded-full hover:bg-[var(--fire)] hover:text-black transition-all">
+                <i data-lucide="menu" id="menu-icon" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black z-[140] flex flex-col items-center justify-center translate-y-full opacity-0 pointer-events-none transition-all duration-700 backdrop-blur-3xl px-6 text-center font-black">
+        <div class="flex flex-col gap-10 text-center w-full overflow-y-auto py-10">
+            <a href="#hero" onclick="closeMenu()" class="text-4xl md:text-8xl font-header uppercase tracking-tighter text-zinc-700 hover:text-[var(--fire)] transition-all italic leading-none font-black">Home</a>
+            <a href="#overview" onclick="closeMenu()" class="text-4xl md:text-8xl font-header uppercase tracking-tighter text-zinc-700 hover:text-[var(--fire)] transition-all italic leading-none font-black">Spectrum</a>
+            <a href="#techno" onclick="closeMenu()" class="text-4xl md:text-8xl font-header uppercase tracking-tighter text-zinc-700 hover:text-[var(--fire)] transition-all italic leading-none font-black">Combination</a>
+            <a href="#project" onclick="closeMenu()" class="text-4xl md:text-8xl font-header uppercase tracking-tighter text-zinc-700 hover:text-[var(--fire)] transition-all italic leading-none font-black">Project</a>
+            <a href="#support" onclick="closeMenu()" class="text-4xl md:text-8xl font-header uppercase tracking-tighter text-zinc-700 hover:text-[var(--fire)] transition-all italic leading-none font-black">Support</a>
+        </div>
+    </div>
+
+    <!-- 1. HERO SECTION -->
+    <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden py-24 text-center">
+        <div class="relative z-10 w-full max-w-7xl px-2">
+            <div id="hero-badge" class="inline-flex items-center gap-4 bg-white/10 border border-white/20 px-8 py-3 rounded-full backdrop-blur-md opacity-0 mx-auto mb-10 shadow-2xl">
+                <span class="text-[11px] md:text-[13px] font-mono font-bold uppercase tracking-[0.4em] text-zinc-100 leading-none font-black">Kongu Engineering College</span>
+            </div>
+
+            <div class="relative w-full text-center">
+                <h2 id="hero-dept" class="text-zinc-400 font-mono text-[10px] md:text-xs font-bold uppercase tracking-[0.4em] md:tracking-[0.8em] mb-4 opacity-0 italic leading-relaxed font-black">Department of Electronics and Communication Engineering</h2>
+                <h3 id="hero-association" class="text-[var(--fire)] font-mono text-[11px] md:text-sm font-black uppercase tracking-[0.3em] mb-8 opacity-0 italic font-bold uppercase text-center">ECE ASSOCIATION AND IETE STUDENT FORUM</h3>
+                <h1 id="hero-title" class="hero-title font-header uppercase opacity-0 scale-95 select-none italic leading-none font-black">ACUMEN</h1>
+            </div>
+
+            <div id="hero-footer" class="space-y-10 opacity-0 mt-12 text-center font-black uppercase">
+                <div class="flex items-center justify-center gap-4 md:gap-16">
+                    <div class="h-[2px] flex-1 max-w-[100px] md:max-w-[200px] bg-orange-900/50"></div>
+                    <span class="text-2xl md:text-7xl font-header italic tracking-tight text-white leading-none uppercase font-black">FEBRUARY 07, 2026</span>
+                    <div class="h-[2px] flex-1 max-w-[100px] md:max-w-[200px] bg-orange-900/50"></div>
+                </div>
+                <p class="text-[11px] md:text-[15px] font-mono font-black text-zinc-400 uppercase tracking-[1em] md:tracking-[2.5em] text-center font-bold font-black">Engineering the Future</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. SPECTRUM -->
+    <section id="overview" class="py-24 md:py-48 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/5 text-left font-black">
+        <div class="grid lg:grid-cols-2 gap-12 md:gap-24 items-end mb-24 md:mb-40">
+            <div class="space-y-8 text-left font-black uppercase font-black">
+                <span class="text-[var(--fire)] font-mono text-sm font-black uppercase tracking-widest px-4 py-2 border border-orange-900/50 rounded-full w-fit bg-orange-900/10 font-bold font-black">Protocol 01: Spectrum</span>
+                <h2 class="section-heading italic text-white leading-tight font-black uppercase font-black">Event<br/>Realms</h2>
+            </div>
+            <p class="text-zinc-300 text-lg md:text-2xl leading-relaxed font-medium border-l-4 border-[var(--fire)] pl-8 md:pl-14 uppercase tracking-tighter max-w-xl font-black italic">
+                Technical trials engineered to test the limits of logic, coding, and hardware innovation. Your legacy starts in these domains.
+            </p>
+        </div>
+        <div id="tracks-grid" class="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10 font-black uppercase font-black"></div>
+    </section>
+
+    <!-- 3. TECHNO PASS -->
+    <section id="techno" class="py-24 md:py-48 bg-[#050505] relative overflow-hidden border-y border-white/5 text-left font-black">
+        <div class="absolute top-0 right-0 w-full h-full bg-orange-600/5 blur-[150px] -z-10 font-black uppercase"></div>
+        <div class="max-w-7xl mx-auto px-6 sm:px-12 text-left relative z-10 font-black uppercase">
+            <div class="flex flex-col xl:flex-row gap-20 xl:gap-32 text-left font-black uppercase">
+                <div class="flex-1 space-y-12 md:space-y-16 w-full text-left font-black uppercase">
+                    <div class="space-y-6 text-left font-black uppercase font-black">
+                        <span class="text-[var(--fire)] font-mono text-sm font-black uppercase tracking-[0.4em] font-bold text-left block font-black uppercase font-black">Premium Access Protocol</span>
+                        <h2 class="section-heading italic text-white leading-tight underline decoration-[var(--fire)] decoration-4 underline-offset-8 font-black text-left uppercase tracking-tighter font-black">Techno-Pass</h2>
+                    </div>
+                    <p class="text-zinc-100 text-lg md:text-2xl font-bold leading-relaxed max-w-xl italic font-black text-left uppercase">The ultimate technical tri-factor: Ideathon, Codathon, and Circuitrix.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-10 border-y border-white/10 py-12 font-black text-left uppercase">
+                        <div class="space-y-4 text-left font-black uppercase font-black">
+                            <span class="text-[13px] text-zinc-300 uppercase tracking-widest leading-none font-bold text-left font-black uppercase font-black uppercase">Combination Entry</span>
+                            <div class="text-4xl md:text-6xl font-header text-white tracking-tighter uppercase leading-none font-bold text-left font-black font-black uppercase uppercase font-black">₹200 <span class="text-sm font-mono text-zinc-400 font-black uppercase font-black">/ HEAD</span></div>
+                        </div>
+                        <div class="space-y-4 sm:text-right font-black uppercase font-black">
+                            <span class="text-[13px] text-zinc-300 uppercase font-black tracking-widest leading-none font-bold text-left md:text-right font-black uppercase uppercase uppercase font-black font-black">Team Capacity</span>
+                            <div class="text-3xl md:text-5xl font-header text-white tracking-tighter uppercase italic leading-none font-bold text-left md:text-right font-black uppercase uppercase uppercase uppercase font-black uppercase font-black">03 Members</div>
+                        </div>
+                    </div>
+                    <button class="btn-molten w-full sm:w-fit shadow-2xl font-black btn-reg-trigger text-left uppercase font-black font-black" data-event="combo">Authorize Pass <i data-lucide="zap" class="inline-block ml-2 uppercase font-black font-black"></i></button>
+                    <p class="text-[var(--fire)] font-mono text-[10px] font-bold uppercase tracking-widest italic mt-4 opacity-70 text-left font-black uppercase font-black font-black font-black">Individual registration available within track cards below.</p>
+                </div>
+                <div id="combo-grid" class="flex-1 grid grid-cols-1 gap-6 md:gap-10 w-full text-left font-black uppercase font-black uppercase font-black"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. PROJECT PRESENTATION -->
+    <section id="project" class="py-24 md:py-48 px-6 sm:px-12 max-w-7xl mx-auto border-b border-white/5 text-left font-black uppercase">
+        <div class="grid lg:grid-cols-2 gap-16 items-start text-left font-black">
+            <div class="space-y-10 text-left font-black">
+                <div class="space-y-4 text-left font-black">
+                    <span class="text-[var(--fire)] font-mono text-sm font-black uppercase tracking-widest px-4 py-2 border border-orange-900/50 rounded-full w-fit bg-orange-900/10 font-bold text-left uppercase font-black uppercase font-black">Standalone Trial</span>
+                    <h2 class="section-heading italic text-white leading-tight font-black text-left uppercase font-black uppercase font-black">Project<br/>Presentation</h2>
+                </div>
+                <p class="text-zinc-200 text-lg md:text-2xl font-bold leading-relaxed italic text-left uppercase font-black uppercase font-black uppercase font-black">A technical event where participants showcase innovative hardware and software projects, explaining design, implementation, and real-world applications. This platform encourages creativity, technical excellence, and problem-solving skills.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 border-y border-white/10 py-8 font-black text-left uppercase font-black uppercase font-black">
+                    <div class="space-y-2 text-left font-black">
+                        <span class="text-[12px] text-zinc-400 uppercase tracking-widest leading-none font-bold text-left uppercase font-black uppercase font-black uppercase font-black">Trial Entry</span>
+                        <div class="text-4xl text-white font-mono uppercase leading-none font-bold font-black text-left uppercase font-black uppercase font-black uppercase font-black">₹200 <span class="text-sm text-zinc-500 font-bold font-black uppercase font-black uppercase">/ Team</span></div>
+                    </div>
+                    <div class="space-y-2 sm:text-right font-black">
+                        <span class="text-[12px] text-zinc-400 uppercase tracking-widest leading-none font-bold text-left md:text-right uppercase font-black uppercase uppercase font-black uppercase font-black uppercase font-black font-black uppercase font-black font-black uppercase font-black">Squad Limit</span>
+                        <div class="text-4xl text-white font-mono uppercase italic leading-none font-bold font-black text-left md:text-right uppercase font-black uppercase uppercase font-black uppercase font-black uppercase font-black font-black uppercase font-black font-black uppercase font-black font-black uppercase">03 Members</div>
+                    </div>
+                </div>
+                <button class="btn-molten w-full sm:w-fit shadow-2xl font-black btn-reg-trigger text-left font-black uppercase uppercase font-black uppercase font-black uppercase font-black font-black font-black font-black font-black uppercase" data-event="project">Initialize Registration <i data-lucide="presentation" class="inline-block ml-2 uppercase font-black uppercase font-black font-black font-black uppercase font-black"></i></button>
+                
+                <div class="pt-6 font-mono text-[var(--fire)] text-sm font-black uppercase space-y-2 border-l-4 border-orange-900/30 pl-4 italic text-left font-black uppercase uppercase font-black font-black font-black uppercase uppercase font-black font-black font-black font-black font-black uppercase font-black">
+                    <p>Zakiyaa Sulthana - 82488 06467</p>
+                    <p>Sangamithra - 95669 92390</p>
+                </div>
+            </div>
+            <div class="premium-glass rounded-[3rem] p-10 md:p-14 border-orange-500/20 relative overflow-hidden font-bold text-left font-black uppercase">
+                <h3 class="text-xl md:text-2xl font-header text-white uppercase italic mb-8 border-b border-white/10 pb-4 font-black text-center uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Protocol Rules</h3>
+                <ul class="space-y-6 text-left font-bold font-black uppercase leading-relaxed font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                    <li class="flex gap-4 items-start font-mono text-zinc-300 text-sm leading-relaxed font-bold italic text-left font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"><span class="text-[var(--fire)] font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">01</span> Physical hardware prototype mandatory for display. Working model video compulsory submission via Google Form.</li>
+                    <li class="flex gap-4 items-start font-mono text-zinc-300 text-sm leading-relaxed font-bold italic text-left font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"><span class="text-[var(--fire)] font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">02</span> Abstract submission limit: 400 words. Registration fee: ₹200 per team.</li>
+                    <li class="flex gap-4 items-start font-mono text-zinc-300 text-sm leading-relaxed font-bold italic text-left font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"><span class="text-[var(--fire)] font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">03</span> NOTE: One registration per team is sufficient. PPT presentation is optional.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. WORKSHOPS -->
+    <section id="workshops" class="py-24 md:py-48 px-6 sm:px-12 max-w-7xl mx-auto text-center font-black uppercase">
+        <div class="mb-24 md:mb-40 space-y-6 text-center font-black uppercase uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+            <span class="text-[var(--fire)] font-mono text-sm font-bold uppercase tracking-widest font-black text-center block uppercase uppercase font-black uppercase font-black font-black font-black uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Laboratory Training Sessions</span>
+            <h2 class="section-heading italic text-white text-center leading-tight font-black text-center font-black uppercase uppercase uppercase uppercase font-black font-black uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Master Workshops</h2>
+        </div>
+        <div id="workshops-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 font-black uppercase uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"></div>
+    </section>
+
+    <!-- 6. HACKATHON -->
+    <section id="hackathon" class="py-24 md:py-48 bg-[#000] relative border-y border-white/5 overflow-hidden text-left font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+        <div class="max-w-7xl mx-auto px-6 sm:px-12 relative z-10 text-left font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+            <div class="flex flex-col lg:flex-row justify-between items-start gap-16 lg:gap-32 text-left font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                <div class="lg:w-1/2 space-y-10 md:space-y-12 w-full text-left font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                    <div class="space-y-6 text-left font-black uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                        <span class="text-[var(--fire)] font-mono text-sm font-black uppercase tracking-[0.5em] block font-bold text-left leading-none uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Endurance Protocol</span>
+                        <h2 class="section-heading italic text-white leading-tight font-black text-left font-black uppercase tracking-tighter uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">6 Hour Hackathon</h2>
+                    </div>
+                    <p class="text-zinc-100 text-lg md:text-2xl font-bold italic leading-relaxed max-w-xl text-left uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                        An intense innovation challenge where participants design and develop hardware or software solutions within six hours. Rapid problem-solving to build impactful real-world results.
+                    </p>
+                    
+                    <!-- CRITICAL HIGHLIGHT -->
+                    <div class="p-6 md:p-8 bg-orange-600/15 border-2 border-[var(--fire)] rounded-2xl relative overflow-hidden group shadow-[0_0_40px_rgba(255,157,0,0.1)] text-left font-black uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                        <div class="flex gap-4 items-start relative z-10 text-left font-black uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                            <i data-lucide="alert-triangle" class="text-[var(--fire)] w-8 h-8 shrink-0 mt-1 font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"></i>
+                            <p class="text-[var(--fire)] font-bold text-base md:text-lg leading-snug font-black uppercase italic text-left uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                                No extra time will be provided under any circumstances, even if participants arrive late. Teams are responsible for managing their time effectively.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 xs:grid-cols-2 gap-6 md:gap-10 pt-4 font-black uppercase text-left font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                        <div class="p-8 premium-glass rounded-3xl border-l-8 border-[var(--fire)] text-left font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                            <span class="text-[13px] uppercase text-zinc-300 block mb-3 tracking-widest leading-none font-black font-bold text-left uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black">Team Fee</span>
+                            <span class="text-4xl md:text-5xl font-header text-white font-bold uppercase leading-none font-black text-left uppercase uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">₹300</span>
+                        </div>
+                        <div class="p-8 premium-glass rounded-3xl border-l-8 border-zinc-500 text-left font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                            <span class="text-[13px] uppercase text-zinc-300 block mb-3 tracking-widest leading-none font-black font-bold leading-none text-left uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Max Squad</span>
+                            <span class="text-2xl md:text-4xl font-header text-[var(--fire)] leading-none font-black uppercase italic font-black text-left uppercase uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black uppercase font-black font-black font-black">03 Members</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-10 font-mono text-[var(--fire)] text-sm font-black uppercase space-y-2 border-l-4 border-orange-900/30 pl-4 italic text-left font-black uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                        <p>Akilan M - 99426 67445</p>
+                        <p>Logaprasad - 63812 39924</p>
+                    </div>
+                </div>
+
+                <div class="lg:w-1/2 w-full mt-10 lg:mt-0 text-left font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                    <div class="p-10 md:p-16 premium-glass rounded-[3rem] relative overflow-hidden border-t-8 border-[var(--fire)] text-center locked-mission-card shadow-2xl font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                        <div class="relative z-10 space-y-12 py-10 font-black text-left uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                            <h3 class="text-xl md:text-3xl font-header text-white italic font-black text-center uppercase uppercase uppercase uppercase font-black font-black uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">6 Problem Statements released 20th Jan</h3>
+                            <ul class="space-y-6 text-left font-black uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                                <li class="flex gap-4 items-start font-mono text-zinc-300 text-sm leading-relaxed font-bold italic text-left uppercase uppercase uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"><span class="text-[var(--fire)] font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">01</span> Abstract submission is mandatory. 50% implementation must be completed to qualify for final rounds.</li>
+                                <li class="flex gap-4 items-start font-mono text-zinc-300 text-sm leading-relaxed font-bold italic text-left uppercase uppercase uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"><span class="text-[var(--fire)] font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">02</span> Hackathon registrants are NOT permitted to participate in any other events.</li>
+                                <li class="flex gap-4 items-start font-mono text-zinc-300 text-sm leading-relaxed font-bold italic text-left uppercase uppercase uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"><span class="text-[var(--fire)] font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">03</span> Evaluation consists of two review rounds + one final evaluation round.</li>
+                            </ul>
+                            <div class="pt-12 text-center space-y-10 font-black uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                                <div class="w-full h-[6px] bg-zinc-900 rounded-full relative overflow-hidden font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                                    <div class="absolute h-full bg-[var(--fire)] w-1/3 animate-loading font-black uppercase font-black font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"></div>
+                                </div>
+                                <button class="w-full py-6 bg-orange-600 text-black font-header text-[12px] font-black tracking-[0.4em] uppercase rounded-sm hover:bg-white transition-all btn-reg-trigger shadow-2xl text-center font-black uppercase uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black" data-event="hackathon">ACCESS MISSION REGISTRATION</button>
+                                <p class="text-zinc-600 font-mono text-[10px] font-bold uppercase tracking-widest italic font-black text-center uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Jury’s decision is final and binding.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. SUPPORT HUB -->
+    <section id="support" class="py-24 md:py-48 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/5 text-left font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+        <div class="text-center mb-24 md:mb-48 text-center font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+            <span class="text-[var(--fire)] font-mono text-sm font-black uppercase tracking-widest block mb-4 text-center font-bold text-center uppercase uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Command Terminal</span>
+            <h2 class="section-heading italic text-white text-center leading-tight font-black text-center font-black uppercase tracking-tighter uppercase uppercase font-black font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Support Hub</h2>
+            <div class="h-2 w-32 bg-[var(--fire)] mx-auto mt-12 opacity-80 shadow-[0_0_30px_var(--fire-glow)] uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"></div>
+        </div>
+        <div class="max-w-4xl mx-auto text-left font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+            <div class="premium-glass p-8 md:p-20 rounded-[3rem] shadow-2xl relative overflow-hidden text-left font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                <div class="relative z-10 space-y-12 text-left font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                    <h3 class="text-xl md:text-2xl font-header uppercase tracking-tighter text-zinc-400 italic border-b border-white/10 pb-6 text-center lg:text-left font-black text-left font-black uppercase tracking-widest font-black uppercase uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Protocol Coordination Team</h3>
+                    <div id="coordinators-list" class="grid grid-cols-1 gap-y-8 text-left font-black leading-none uppercase uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. COLLEGE ADDRESS -->
+    <section id="address" class="py-24 md:py-32 px-6 sm:px-12 max-w-4xl mx-auto text-center border-t border-white/5 font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+        <div class="premium-glass p-12 md:p-16 rounded-[2rem] border border-orange-500/10 group hover:border-orange-500/30 transition-all shadow-2xl text-center font-black leading-none uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+            <div class="flex flex-col items-center gap-6 text-center font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                <div class="p-4 bg-orange-500/5 rounded-full border border-orange-500/20 text-[var(--fire)] text-center font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                    <i data-lucide="map-pin" class="w-8 h-8 mx-auto text-center font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"></i>
+                </div>
+                <div class="space-y-4 text-center font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                    <span class="text-[10px] font-mono font-black uppercase tracking-[0.5em] text-zinc-500 block text-center font-black leading-none uppercase uppercase uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Location Protocol</span>
+                    <h4 class="text-2xl md:text-3xl font-header uppercase italic font-black text-white leading-tight text-center font-black uppercase tracking-widest font-black uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Kongu Engineering College</h4>
+                    <div class="font-mono text-base md:text-lg font-black text-[var(--fire)] space-y-1 leading-relaxed uppercase italic text-center font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                        <p>Perundurai, Erode District</p>
+                        <p>Tamil Nadu – 638052, India</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-20 md:py-32 border-t border-zinc-900 bg-black text-center text-zinc-300 font-mono text-[12px] md:text-[14px] font-black uppercase tracking-[1.4em] text-center font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+        <div class="max-w-7xl mx-auto px-6 space-y-16 text-center font-black uppercase leading-none font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+            <div class="flex flex-wrap justify-center gap-10 md:gap-24 opacity-80 text-[var(--fire)] font-black uppercase font-bold text-center font-black leading-none uppercase uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                <span>#ACUMEN2026</span>
+                <span>#FIRE_AND_ASH</span>
+                <span>#ECE_KEC</span>
+            </div>
+            <div class="pt-16 border-t border-white/5 flex flex-col items-center gap-2 text-center font-black leading-none uppercase uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                <span class="text-white/60 block tracking-[0.2em] text-[10px] md:text-[11px] font-black uppercase italic font-bold text-center font-black leading-none uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Website Created by <span class="text-[var(--fire)] font-black uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Akilan M</span></span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- CENTRAL REGISTRATION LINKS ---
+        const LINKS = {
+            hackathon: "https://docs.google.com/forms/d/e/1FAIpQLSfcGmGjA0ef85f_KGm9FWCQV-TOi94Je6UQj2Yw7DhuZTBGwQ/viewform?usp=sharing&ouid=102251713663255983759",
+            ideathon: "https://docs.google.com/forms/d/e/1FAIpQLSfX_ZFqI7LVziKwiLfEIggu5aQMPZpRHF7BWzn1zn_Ugu-6LA/viewform?usp=sharing&ouid=102251713663255983759",
+            project: "https://docs.google.com/forms/d/e/1FAIpQLScmg2ESn1TEeuSq1-z93uWcUB7CfXMQiZiH49faM79eXn7vsg/viewform?usp=sharing&ouid=102251713663255983759",
+            sdr: "https://docs.google.com/forms/d/e/1FAIpQLScv2Cc1J_k5m12CAJH3wuJ0K4-ZsKC-ay9iU9q3Izy5NPbg7Q/viewform?usp=sharing&ouid=102251713663255983759",
+            cadence: "https://docs.google.com/forms/d/e/1FAIpQLSd1hpnT6VOxMGOL1aJHsFbtu1U25xWjvWiuWH1xYSX8k4QGcw/viewform?usp=sharing&ouid=102251713663255983759",
+            drone: "https://docs.google.com/forms/d/e/1FAIpQLSeBuAHwc5V-uJ9sl4E9KPJYCyR3JbZSBuVC8S3IOuVz6HdXNw/viewform?usp=sharing&ouid=102251713663255983759",
+            circuitrix: "https://docs.google.com/forms/d/e/1FAIpQLSc7s8hIOgfVyI6qgEgPTja6yyWEM2lLIG_d1frFOlsT2JpmFA/viewform?usp=sharing&ouid=102251713663255983759", // CIRCUITRIX LINK INTEGRATED
+            combo: "#"  
+        };
+
+        const DATA = {
+            TRACKS: [
+                { title: "Ideathon", icon: "lightbulb", desc: "Digital Strategy" },
+                { title: "Codathon", icon: "code", desc: "Logic Protocol" },
+                { title: "Circuitrix", icon: "chip", desc: "Logic Debug" },
+                { title: "Project Presentation", icon: "presentation", desc: "Hardware Innovation" },
+                { title: "6 Hour Hackathon", icon: "code-2", desc: "Endurance Build" },
+                { title: "Software Defined Radio", icon: "activity", desc: "Signal Mastery" },
+                { title: "Drone Technology", icon: "plane", desc: "Aerial Ops" },
+                { title: "Cadence Design", icon: "zap", desc: "VLSI Synthesis" }
+            ],
+            COMBO_EVENTS: [
+                { 
+                    title: "Ideathon", 
+                    linkId: "ideathon", 
+                    description: "Innovative minds pitch creative hardware and software-based ideas targeting real-world challenges. Concepts, design, and impact showcase.",
+                    rules: ["Divya Bharathi - 90475 31785", "Iniya - 94868 93270", "Max 10 slides.", "7 mins total time."]
+                },
+                { title: "Codathon", description: "Extreme coding trial solving complex algorithms and data structures under pressure. Team of 2 members." },
+                { 
+                    title: "Circuitrix", 
+                    linkId: "circuitrix", // ISOLATED LINK ID
+                    description: "A technical event that tests knowledge in electronics through a quiz and simulation. FREE for Ideathon/Project Presentation registrants.",
+                    rules: ["Daithiya Sudhan - 94860 16790", "Dhivashini - 86100 16280", "Laptop and internet required.", "₹200 per team registration."]
+                }
+            ],
+            WORKSHOPS: [
+                { 
+                    title: "Software Defined Radio Workshop", 
+                    fee: "₹200 / Participant", 
+                    desc: "introduces SDR fundamentals, implementing wireless functions via software. Real-time signal processing focus.", 
+                    rules: ["Hadi Rasool - 63819 52491", "Charu Nethra - 93613 53797", "No other event participation allowed."],
+                    linkId: "sdr"
+                },
+                { 
+                    title: "Drone Technology Workshop", 
+                    fee: "₹200 / Participant", 
+                    desc: "Covers drone design, components, flight control, and hands-on maneuvering of unmanned systems.", 
+                    rules: ["Selva Brindha - 70105 45799", "Jayanivash - 94422 49452", "No other event participation allowed."],
+                    linkId: "drone"
+                },
+                { 
+                    title: "Cadence Design Workshop", 
+                    fee: "₹200 / Participant", 
+                    desc: "Provides hands-on training in Cadence EDA tools, covering VLSI design workflows used in industry.", 
+                    rules: ["Kishanth Govindaraj - 90038 61457", "Bhavadharani - 88381 96997", "No other event participation allowed."],
+                    linkId: "cadence"
+                }
+            ],
+            COORDINATORS: [
+                { name: "Akshavikaa P V", phone: "+91 99407 02559" },
+                { name: "Sandeep M", phone: "+91 84314 21244" },
+                { name: "Shakthi C", phone: "+91 93441 99258" },
+                { name: "Akilan M", phone: "+91 99426 67445" }
+            ]
+        };
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#three-canvas'), alpha: true, antialias: true });
+        function updateSize() { renderer.setSize(window.innerWidth, window.innerHeight); camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); }
+        updateSize();
+        const posArray = new Float32Array(1500 * 3);
+        for(let i = 0; i < 1500 * 3; i++) { posArray[i] = (Math.random() - 0.5) * 15; }
+        const particlesGeometry = new THREE.BufferGeometry();
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const material = new THREE.PointsMaterial({ size: 0.01, color: '#ff9d00', transparent: true, opacity: 0.8 });
+        const particlesMesh = new THREE.Points(particlesGeometry, material);
+        scene.add(particlesMesh);
+        camera.position.z = 3;
+        function animateParticles() { requestAnimationFrame(animateParticles); particlesMesh.rotation.y += 0.0008; renderer.render(scene, camera); }
+        animateParticles();
+        window.addEventListener('resize', updateSize);
+
+        gsap.registerPlugin(ScrollTrigger);
+        function initAnimations() {
+            const heroTL = gsap.timeline();
+            heroTL.to("#hero-badge", { opacity: 1, y: -10, duration: 1.2 })
+                  .to("#hero-dept", { opacity: 1, y: -5, duration: 1 }, "-=0.8")
+                  .to("#hero-association", { opacity: 1, y: -5, duration: 1 }, "-=0.8")
+                  .to("#hero-title", { opacity: 1, scale: 1, duration: 2 }, "-=1.2")
+                  .to("#hero-footer", { opacity: 1, y: 0, duration: 1.2 }, "-=1.5");
+            gsap.from(".track-item", { scrollTrigger: { trigger: "#tracks-grid", start: "top 92%" }, opacity: 0, y: 30, duration: 0.8, stagger: 0.05 });
+            ScrollTrigger.create({
+                start: 'top -80',
+                onUpdate: (self) => {
+                    const nav = document.getElementById('nav');
+                    if (window.scrollY > 100) nav.classList.add('bg-black/90', 'backdrop-blur-xl', 'py-4', 'border-b', 'border-orange-900/50');
+                    else nav.classList.remove('bg-black/90', 'backdrop-blur-xl', 'py-4', 'border-b', 'border-orange-900/50');
+                    document.getElementById('progress-bar').style.width = (self.progress * 100) + '%';
+                }
+            });
+        }
+
+        function renderContent() {
+            document.getElementById('tracks-grid').innerHTML = DATA.TRACKS.map(t => `
+                <div class="track-item p-10 premium-glass rounded-3xl flex flex-col items-center text-center group cursor-default">
+                    <div class="mb-5 text-[var(--fire)] group-hover:scale-125 transition-transform duration-500 group-hover:text-white font-black">
+                        <i data-lucide="${t.icon === 'chip' ? 'cpu' : t.icon}" class="w-8 h-8 font-black"></i>
+                    </div>
+                    <span class="text-[13px] font-mono uppercase tracking-widest text-zinc-300 mb-3 font-black font-bold text-center leading-none uppercase font-black uppercase">${t.desc}</span>
+                    <h3 class="font-header text-[12px] uppercase text-zinc-100 group-hover:text-white transition-colors tracking-widest leading-tight font-bold font-black text-center leading-none uppercase font-black uppercase font-black">${t.title}</h3>
+                </div>
+            `).join('');
+
+            document.getElementById('combo-grid').innerHTML = DATA.COMBO_EVENTS.map(t => `
+                <div onclick="this.classList.toggle('card-active')" class="p-8 premium-glass rounded-3xl border-l-8 border-[var(--fire)] flex flex-col justify-center min-h-[160px] group mb-4 cursor-pointer text-left uppercase font-black uppercase font-black">
+                    <div class="flex justify-between items-center w-full uppercase font-black uppercase font-black">
+                        <div class="space-y-2 text-left text-zinc-300 uppercase font-black uppercase font-black">
+                           <span class="text-[var(--fire)] font-mono text-[13px] font-bold uppercase tracking-widest mb-1 leading-none font-black font-black uppercase font-black uppercase font-black uppercase">Combo Member</span>
+                           <h3 class="text-xl md:text-3xl font-header uppercase text-white font-bold leading-none font-black font-black text-left font-black uppercase font-black uppercase font-black font-black uppercase">${t.title}</h3>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-6 h-6 text-zinc-400 transition-transform group-[.card-active]:rotate-180 font-black uppercase font-black uppercase font-black font-black uppercase font-black font-black"></i>
+                    </div>
+                    <div class="expandable-content text-left text-zinc-300 uppercase font-black uppercase font-black uppercase font-black">
+                        <p class="text-sm md:text-base pt-4 border-t border-white/5 italic font-bold leading-relaxed text-left uppercase font-black uppercase font-black font-black uppercase font-black">${t.description}</p>
+                        ${t.rules ? `<ul class="mt-4 space-y-2 font-black italic uppercase font-black uppercase font-black font-black font-black font-black">${t.rules.map(r => `<li class="text-[11px] text-zinc-400 flex items-start gap-2 leading-none font-bold text-left font-black uppercase font-black uppercase font-black font-black font-black"><span class="text-[var(--fire)] uppercase font-black font-black font-black font-black font-black">▶</span> ${r}</li>`).join('')}</ul>` : ''}
+                        ${t.linkId ? `<button class="mt-6 w-full py-4 bg-white text-black font-black uppercase text-[10px] tracking-[0.2em] rounded-lg btn-reg-trigger hover:bg-[var(--fire)] transition-all font-black uppercase font-black uppercase font-black font-black font-black font-black" data-event="${t.linkId}">Register for ${t.title}</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('workshops-grid').innerHTML = DATA.WORKSHOPS.map(t => `
+                <div class="p-10 premium-glass rounded-[2.5rem] text-center space-y-8 group border-t-8 border-white/5 hover:border-[var(--fire)] transition-all duration-500 font-black uppercase font-black uppercase font-black font-black font-black font-black font-black font-black">
+                    <div class="mx-auto w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-[var(--fire)] group-hover:rotate-[360deg] transition-all duration-1000 shadow-xl font-black uppercase font-black uppercase font-black font-black font-black font-black font-black font-black font-black">
+                        <i data-lucide="award" class="w-10 h-10 uppercase font-black font-black uppercase font-black font-black font-black font-black font-black font-black"></i>
+                    </div>
+                    <h3 class="text-xl md:text-3xl font-header uppercase tracking-tighter italic leading-tight text-white font-bold leading-none font-bold font-black text-center font-black uppercase uppercase font-black uppercase font-black uppercase font-black font-black font-black">${t.title}</h3>
+                    <p class="text-zinc-100 text-sm md:text-lg font-bold italic leading-relaxed font-bold font-black text-center font-black uppercase font-black uppercase font-black uppercase font-black uppercase font-black font-black font-black">${t.desc}</p>
+                    <div class="pt-6 flex flex-col items-center gap-4 text-center font-bold font-black uppercase font-black uppercase font-black font-black font-black font-black font-black font-black">
+                        <span class="text-[13px] font-mono font-black text-white bg-orange-500/20 px-6 py-3 rounded-full border border-orange-500/30 uppercase tracking-widest leading-none font-bold font-black font-black font-black tracking-widest uppercase font-black uppercase font-black uppercase font-black font-black font-black">${t.fee}</span>
+                        <div class="space-y-4 w-full text-center font-bold font-black font-black font-black uppercase font-black uppercase font-black font-black font-black font-black font-black font-black">
+                            ${t.rules ? t.rules.map(r => `<p class="text-[10px] text-orange-400 font-bold uppercase italic leading-none border-l-2 border-orange-500 pl-2 inline-block font-black text-center uppercase font-black uppercase font-black font-black font-black font-black font-black">Note: ${r}</p>`).join('') : ''}
+                        </div>
+                        <button class="w-full py-5 bg-white text-black border-4 border-white/10 rounded-xl hover:bg-[var(--fire)] hover:text-white transition-all font-header text-[12px] uppercase tracking-widest font-black btn-reg-trigger shadow-2xl shadow-orange-500/20 text-center font-black uppercase uppercase font-black uppercase font-black font-black font-black font-black font-black font-black" data-event="${t.linkId}">Initialize</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('coordinators-list').innerHTML = DATA.COORDINATORS.map(coord => `
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-10 group cursor-default border-l-8 border-orange-500 pl-8 hover:bg-white/5 transition-all py-8 rounded-r-3xl pr-10 border-b border-white/5 shadow-lg font-bold font-black uppercase font-black font-black uppercase font-black font-black font-black font-black font-black">
+                    <span class="text-lg md:text-xl font-header uppercase tracking-tighter text-zinc-200 group-hover:text-white transition-colors leading-none italic font-black text-left font-black leading-none uppercase tracking-tighter uppercase uppercase font-black uppercase font-black uppercase font-black font-black font-black">${coord.name}</span>
+                    <span class="text-[var(--fire)] font-mono text-base md:text-lg font-black tracking-widest bg-orange-500/10 px-4 py-2 rounded-xl border-2 border-orange-500/20 shadow-2xl whitespace-nowrap font-black text-left font-black leading-none italic tracking-widest uppercase uppercase font-black uppercase font-black uppercase font-black font-black font-black">${coord.phone}</span>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+            document.querySelectorAll('.btn-reg-trigger').forEach(btn => btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const eventId = btn.getAttribute('data-event');
+                const targetLink = LINKS[eventId] || "#";
+                if(targetLink !== "#") window.open(targetLink, '_blank');
+            }));
+        }
+
+        const menuBtn = document.getElementById('menu-toggle');
+        const overlay = document.getElementById('mobile-overlay');
+        let isMenuOpen = false;
+        menuBtn.addEventListener('click', () => { isMenuOpen = !isMenuOpen; overlay.style.transform = isMenuOpen ? 'translateY(0)' : 'translateY(100%)'; overlay.style.opacity = isMenuOpen ? '1' : '0'; overlay.style.pointerEvents = isMenuOpen ? 'all' : 'none'; document.getElementById('menu-icon').setAttribute('data-lucide', isMenuOpen ? 'x' : 'menu'); lucide.createIcons(); });
+        function closeMenu() { isMenuOpen = false; overlay.style.transform = 'translateY(100%)'; overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; document.getElementById('menu-icon').setAttribute('data-lucide', 'menu'); lucide.createIcons(); }
+        window.onload = () => { renderContent(); initAnimations(); };
+    </script>
+</body>
+</html>
