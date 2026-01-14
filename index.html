@@ -35,7 +35,7 @@
         .font-header { font-family: 'Syncopate', sans-serif; }
         .font-mono { font-family: 'JetBrains+Mono', monospace; }
 
-        /* Cinematic Background Image Container */
+        /* Cinematic Background */
         #site-bg {
             position: fixed;
             top: 0;
@@ -61,7 +61,6 @@
             opacity: 0.6;
         }
 
-        /* Hero Logo Fit Engine */
         .hero-logo-container {
             width: 100%;
             max-width: 90vw;
@@ -87,11 +86,6 @@
             line-height: 1;
             text-transform: uppercase;
             font-weight: 900;
-        }
-
-        #developer .section-heading {
-            font-size: clamp(1.6rem, 4.2vw, 3.2rem);
-            line-height: 1.1;
         }
 
         .event-card {
@@ -160,6 +154,28 @@
         
         section { position: relative; z-index: 10; width: 100%; }
         .content-wrap { display: flex; flex-direction: column; gap: 0; }
+
+        /* Team Section Custom Styles */
+        .team-chip {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+        .team-chip:hover {
+            border-color: var(--fire);
+            background: rgba(255, 157, 0, 0.05);
+        }
+        .rank-label {
+            font-size: 0.6rem;
+            color: var(--fire);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
     </style>
 </head>
 <body class="antialiased font-black uppercase">
@@ -192,6 +208,7 @@
             <a href="#techno" onclick="closeMenu()" class="text-4xl md:text-6xl text-zinc-700 hover:text-white transition-all italic font-black">Techno Pass</a>
             <a href="#developer" onclick="closeMenu()" class="text-4xl md:text-6xl text-zinc-700 hover:text-white transition-all italic font-black">Developer Pass</a>
             <a href="#hackathon" onclick="closeMenu()" class="text-4xl md:text-6xl text-zinc-700 hover:text-white transition-all italic font-black">Hackathon</a>
+            <a href="#team" onclick="closeMenu()" class="text-4xl md:text-6xl text-zinc-700 hover:text-white transition-all italic font-black">Team</a>
             <a href="#support" onclick="closeMenu()" class="text-4xl md:text-6xl text-zinc-700 hover:text-white transition-all italic font-black">Support</a>
         </div>
     </div>
@@ -394,6 +411,35 @@
             </div>
         </section>
 
+        <!-- 9. ORGANIZING TEAM (VANGUARD COLLECTIVE) -->
+        <section id="team" class="py-24 bg-zinc-950/60 border-t border-white/5">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-20 space-y-4">
+                    <span class="text-[var(--fire)] font-mono text-xs font-black uppercase tracking-[0.4em]">The Force Behind Acumen'26</span>
+                    <h2 class="section-heading font-header font-black text-white italic uppercase text-center">Organizing team</h2>
+                    <div class="h-[2px] w-24 bg-gradient-to-r from-transparent via-[var(--fire)] to-transparent mx-auto"></div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-16">
+                    <!-- ECE ASSOCIATION -->
+                    <div class="space-y-10" id="ece-assoc-container">
+                        <div class="flex items-center gap-4 border-l-4 border-[var(--fire)] pl-6">
+                            <h3 class="text-2xl font-header font-black text-white italic">ECE Association</h3>
+                        </div>
+                        <div id="ece-team-render" class="space-y-8"></div>
+                    </div>
+
+                    <!-- IETE STUDENT FORUM -->
+                    <div class="space-y-10" id="iete-forum-container">
+                        <div class="flex items-center gap-4 border-l-4 border-zinc-500 pl-6">
+                            <h3 class="text-2xl font-header font-black text-white italic">IETE Student Forum</h3>
+                        </div>
+                        <div id="iete-team-render" class="space-y-8"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- FOOTER -->
         <footer class="py-16 border-t border-zinc-900 bg-black/80 text-center font-black uppercase font-black italic text-center">
             <div class="max-w-7xl mx-auto px-6 space-y-8 font-black uppercase text-center">
@@ -403,7 +449,7 @@
                     <span>#KEC_ECE</span>
                 </div>
                 <div class="pt-6 border-t border-white/5 text-center font-black uppercase text-center">
-                    <span class="text-white/40 text-[10px] italic tracking-[0.2em] uppercase font-black font-black uppercase font-black italic text-center">Website Created by Akilan M</span>
+                    <span class="text-white/40 text-[10px] italic tracking-[0.2em] uppercase font-black font-black uppercase font-black italic text-center">Website Created by Akilan M, Dhivashini J & Srenidhi G P</span>
                 </div>
             </div>
         </footer>
@@ -411,16 +457,39 @@
 
     <script>
         const LINKS = {
-            hackathon: "https://docs.google.com/forms/d/e/1FAIpQLSfcGmGjA0ef85f_KGm9FWCQV-TOi94Je6UQj2Yw7DhuZTBGwQ/viewform?usp=sharing&ouid=102251713663255983759",
-            ideathon: "https://docs.google.com/forms/d/e/1FAIpQLSfX_ZFqI7LVziKwiLfEIggu5aQMPZpRHF7BWzn1zn_Ugu-6LA/viewform?usp=sharing&ouid=102251713663255983759",
-            project: "https://docs.google.com/forms/d/e/1FAIpQLScmg2ESn1TEeuSq1-z93uWcUB7CfXMQiZiH49faM79eXn7vsg/viewform?usp=sharing&ouid=102251713663255983759",
-            sdr: "https://docs.google.com/forms/d/e/1FAIpQLScv2Cc1J_k5m12CAJH3wuJ0K4-ZsKC-ay9iU9q3Izy5NPbg7Q/viewform?usp=sharing&ouid=102251713663255983759",
-            cadence: "https://docs.google.com/forms/d/e/1FAIpQLSd1hpnT6VOxMGOL1aJHsFbtu1U25xWjvWiuWH1xYSX8k4QGcw/viewform?usp=sharing&ouid=102251713663255983759",
-            drone: "https://docs.google.com/forms/d/e/1FAIpQLSeBuAHwc5V-uJ9sl4E9KPJYCyR3JbZSBuVC8S3IOuVz6HdXNw/viewform?usp=sharing&ouid=102251713663255983759",
-            circuitrix: "https://docs.google.com/forms/d/e/1FAIpQLSc7s8hIOgfVyI6qgEgPTja6yyWEM2lLIG_d1frFOlsT2JpmFA/viewform?usp=sharing&ouid=102251713663255983759",
+            hackathon: "https://docs.google.com/forms/d/e/1FAIpQLSfcGmGjA0ef85f_KGm9FWCQV-TOi94Je6UQj2Yw7DhuZTBGwQ/viewform?usp=sharing",
+            ideathon: "https://docs.google.com/forms/d/e/1FAIpQLSfX_ZFqI7LVziKwiLfEIggu5aQMPZpRHF7BWzn1zn_Ugu-6LA/viewform?usp=sharing",
+            project: "https://docs.google.com/forms/d/e/1FAIpQLScmg2ESn1TEeuSq1-z93uWcUB7CfXMQiZiH49faM79eXn7vsg/viewform?usp=sharing",
+            sdr: "https://docs.google.com/forms/d/e/1FAIpQLScv2Cc1J_k5m12CAJH3wuJ0K4-ZsKC-ay9iU9q3Izy5NPbg7Q/viewform?usp=sharing",
+            cadence: "https://docs.google.com/forms/d/e/1FAIpQLSd1hpnT6VOxMGOL1aJHsFbtu1U25xWjvWiuWH1xYSX8k4QGcw/viewform?usp=sharing",
+            drone: "https://docs.google.com/forms/d/e/1FAIpQLSeBuAHwc5V-uJ9sl4E9KPJYCyR3JbZSBuVC8S3IOuVz6HdXNw/viewform?usp=sharing",
+            circuitrix: "https://docs.google.com/forms/d/e/1FAIpQLSc7s8hIOgfVyI6qgEgPTja6yyWEM2lLIG_d1frFOlsT2JpmFA/viewform?usp=sharing",
             codathon: "https://docs.google.com/forms/d/e/1FAIpQLSfeGne-XroGjqjxhX6MG-s85iNdw62QiNuf69E1PkXAT-ylkQ/viewform?usp=header",
             combo: "#",
             devpass: "#"
+        };
+
+        const TEAM_DATA = {
+            ECE: [
+                { rank: "Faculty Coordinators", members: ["Mr. Ambumani V – AP (Sr.G)", "Ms. Preethi S – AP (Sr.G)"], prominent: true },
+                { rank: "Secretary", members: ["Mr. Lokeshwaran K"] },
+                { rank: "Treasurer", members: ["Ms. Prethika D"] },
+                { rank: "Additional Secretary", members: ["Mr. Dharshan S", "Mr. Boobathi Raja K M", "Ms. Kavyashri J M", "Ms. Sandhya D", "Mr. Yogesh T N"], grid: true },
+                { rank: "Joint Secretary", members: ["Mr. Sandeep M", "Mr. Shakthi C"], grid: true },
+                { rank: "Executive Members", members: ["Mr. Karthikeyan G", "Mr. Daithiya Sudhan S J", "Ms. Divyabharathi Balan", "Ms. Harini M", "Mr. Loga Prasath D", "Ms. Zakiyaa Sulthana J"], grid: true },
+                { rank: "Office Bearers", members: ["Ms. Bhavatharani Y", "Ms. Divyashini J", "Mr. Jayanivash P", "Mr. Mukilan K P", "Ms. Sangamithara R M", "Ms. Narmatha A", "Ms. Subhasree K"], grid: true }
+            ],
+            IETE: [
+                { rank: "Faculty Coordinators", members: ["Ms. Ramyea R – AP", "Mr. Arumugam S – AP"], prominent: true },
+                { rank: "Chairman", members: ["Mr. Elango S"] },
+                { rank: "Vice Chairman", members: ["Mr. Sabarivelan S"] },
+                { rank: "Treasurer", members: ["Ms. Subiksha S"] },
+                { rank: "Secretary", members: ["Mr. Yokitha Surya M"] },
+                { rank: "Additional Secretary", members: ["Mr. Shri Sudhan B", "Mr. Kaviprasad L", "Ms. Mohana Priya", "Mr. Vetriselvan K"], grid: true },
+                { rank: "Joint Secretary", members: ["Mr. Akilan M", "Ms. Selva Brindha K"], grid: true },
+                { rank: "Executive Members", members: ["Ms. Akshavika P V", "Mr. Kishanth G", "Mr. Hadi Rasool", "Mr. Lokesh V", "Ms. Prabanjari V S", "Mr. Sivaprakash P"], grid: true },
+                { rank: "Office Bearers", members: ["Mr. Chiromiyan S", "Ms. Charunethraa K S", "Ms. Iniyaa L", "Mr. Janish S", "Mr. Monishraj K", "Ms. Sreindhi G P", "Mr. Suganth S"], grid: true }
+            ]
         };
 
         const DATA = {
@@ -461,9 +530,16 @@
                 { 
                     title: "Codathon", 
                     linkId: "codathon", 
-                    desc: "Extreme coding trial solving complex algorithms and data structures under intense time pressure.", 
-                    rules: ["Team of 2 members.", "Standard platform used.", "AI tools restricted."],
-                    coordinator: "Technical Support Hub Marshals"
+                    desc: "Extreme coding trial solving complex algorithms and data structures under intense time pressure. Features a multi-round competitive format.", 
+                    rules: [
+                        "Participants must bring their own charged laptops.", 
+                        "Round 1: Coding questions of varying difficulty.", 
+                        "Top performers shortlisted for Round 2.", 
+                        "Winners declared based on Round 2 results.", 
+                        "Plagiarism leads to immediate disqualification.",
+                        "Organizers' decision is final and binding."
+                    ], 
+                    coordinator: "Prabanjari: 63805 07559, Srenidhi: 82480 11709"
                 }
             ],
             WORKSHOPS: [
@@ -545,6 +621,32 @@
                     document.getElementById('progress-bar').style.width = (self.progress * 100) + '%';
                 }
             });
+
+            gsap.from("#team .team-rank-box", {
+                scrollTrigger: { trigger: "#team", start: "top 80%" },
+                y: 30, opacity: 0, stagger: 0.1, duration: 0.8, ease: "power2.out"
+            });
+        }
+
+        function renderTeamSection(containerId, data) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = data.map(group => {
+                const prominentClass = group.prominent ? 'border-[var(--fire)] bg-orange-600/5' : 'border-white/5 bg-white/2';
+                const gridClass = group.grid ? 'grid grid-cols-2 gap-2' : 'space-y-2';
+                
+                return `
+                    <div class="team-rank-box space-y-3">
+                        <span class="rank-label font-mono">${group.rank}</span>
+                        <div class="${gridClass}">
+                            ${group.members.map(name => `
+                                <div class="event-card p-4 rounded-lg border text-center transition-all ${prominentClass}">
+                                    <span class="text-[10px] md:text-[11px] font-bold tracking-tight text-white/90">${name}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function renderContent() {
@@ -598,7 +700,14 @@
                 </div>
             `).join('');
 
+            // Render Organizing Team
+            renderTeamSection('ece-team-render', TEAM_DATA.ECE);
+            renderTeamSection('iete-team-render', TEAM_DATA.IETE);
+
             lucide.createIcons();
+            
+            setTimeout(() => { ScrollTrigger.refresh(); }, 500);
+
             document.querySelectorAll('.btn-reg-trigger').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
