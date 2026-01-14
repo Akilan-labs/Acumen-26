@@ -88,6 +88,11 @@
             font-weight: 900;
         }
 
+        /* Targeted reduction for Developer Pass heading size */
+        #developer .section-heading {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+        }
+
         .event-card {
             background: rgba(15, 15, 15, 0.9);
             backdrop-filter: blur(15px);
@@ -285,7 +290,7 @@
             </div>
         </section>
 
-        <!-- 4. DEVELOPER PASS (Fixed overlapping and improved grid flow) -->
+        <!-- 4. DEVELOPER PASS -->
         <section id="developer" class="py-20 bg-black/40 border-b border-white/5 h-auto backdrop-blur-sm text-left font-black relative overflow-visible">
             <div class="max-w-7xl mx-auto px-6">
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-start text-left">
@@ -307,7 +312,6 @@
                         </div>
                         <button class="btn-molten btn-reg-trigger font-black uppercase shadow-xl text-left" data-event="devpass">Authorize Developer Pass <i data-lucide="code" class="inline-block ml-2 w-4 h-4 font-black"></i></button>
                     </div>
-                    <!-- Added flex-shrink-0 and w-full to ensure containers don't collapse -->
                     <div id="developer-grid" class="lg:col-span-3 flex flex-col gap-6 w-full h-auto"></div>
                 </div>
             </div>
