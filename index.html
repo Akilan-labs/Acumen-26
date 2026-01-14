@@ -152,7 +152,12 @@
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: var(--fire); border-radius: 10px; }
         
-        section { position: relative; z-index: 10; width: 100%; }
+        section { 
+            position: relative; 
+            z-index: 10; 
+            width: 100%; 
+            scroll-margin-top: 5rem; /* Prevents overlap with fixed nav */
+        }
         .content-wrap { display: flex; flex-direction: column; gap: 0; }
 
         /* Team Section Custom Styles */
@@ -256,7 +261,7 @@
         <!-- 3. TECHNO PASS -->
         <section id="techno" class="py-16 bg-zinc-950/40 border-y border-white/5 h-auto backdrop-blur-sm text-left font-black">
             <div class="max-w-7xl mx-auto px-6">
-                <div class="grid lg:grid-cols-5 gap-12 items-start text-left">
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start text-left">
                     <div class="lg:col-span-2 space-y-8 text-left">
                         <div class="space-y-4 text-left">
                             <span class="text-[var(--fire)] font-mono text-xs font-black uppercase tracking-[0.4em]">Access Protocol</span>
@@ -280,10 +285,10 @@
             </div>
         </section>
 
-        <!-- 4. DEVELOPER PASS -->
-        <section id="developer" class="py-16 bg-black/40 border-b border-white/5 h-auto backdrop-blur-sm text-left font-black">
+        <!-- 4. DEVELOPER PASS (Fixed overlapping and improved grid flow) -->
+        <section id="developer" class="py-20 bg-black/40 border-b border-white/5 h-auto backdrop-blur-sm text-left font-black relative overflow-visible">
             <div class="max-w-7xl mx-auto px-6">
-                <div class="grid lg:grid-cols-5 gap-12 items-start text-left">
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-start text-left">
                     <div class="lg:col-span-2 space-y-8 text-left">
                         <div class="space-y-4 text-left">
                             <span class="text-[var(--fire)] font-mono text-xs font-black uppercase tracking-[0.4em]">Developer Protocol</span>
@@ -302,7 +307,8 @@
                         </div>
                         <button class="btn-molten btn-reg-trigger font-black uppercase shadow-xl text-left" data-event="devpass">Authorize Developer Pass <i data-lucide="code" class="inline-block ml-2 w-4 h-4 font-black"></i></button>
                     </div>
-                    <div id="developer-grid" class="lg:col-span-3 flex flex-col gap-4"></div>
+                    <!-- Added flex-shrink-0 and w-full to ensure containers don't collapse -->
+                    <div id="developer-grid" class="lg:col-span-3 flex flex-col gap-6 w-full h-auto"></div>
                 </div>
             </div>
         </section>
