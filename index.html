@@ -186,6 +186,19 @@
             margin-bottom: 0.25rem;
             display: block;
         }
+
+        /* Prize Pool Animation Styles */
+        .shimmer-text {
+            background: linear-gradient(90deg, #fff 0%, var(--fire) 50%, #fff 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
     </style>
 </head>
 <body class="antialiased font-black uppercase">
@@ -225,7 +238,7 @@
 
     <div class="content-wrap">
         <!-- 1. HERO SECTION -->
-        <section id="hero" class="relative min-h-[90vh] flex flex-col items-center justify-center px-6 py-12 text-center font-black">
+        <section id="hero" class="relative min-h-[100vh] flex flex-col items-center justify-center px-6 py-12 text-center font-black">
             <div class="w-full max-w-6xl space-y-8">
                 <div id="hero-badge" class="inline-block bg-white/5 border border-white/10 px-6 py-2 rounded-full opacity-0">
                     <span class="text-[10px] md:text-xs font-mono font-black uppercase tracking-[0.3em] text-zinc-300">Kongu Engineering College</span>
@@ -238,13 +251,26 @@
                         <img src="Logo.png" alt="ACUMEN'26 LOGO" class="hero-logo-img">
                     </div>
                 </div>
-                <div id="hero-footer" class="opacity-0 space-y-8">
+                
+                <div id="hero-footer" class="opacity-0 space-y-6 flex flex-col items-center">
                     <div class="flex items-center justify-center gap-4">
                         <div class="h-[1px] w-8 md:w-16 bg-orange-900"></div>
                         <span class="text-xl md:text-6xl font-header font-black text-white italic uppercase leading-none text-center">FEBRUARY 07, 2026</span>
                         <div class="h-[1px] w-8 md:w-16 bg-orange-900"></div>
                     </div>
+                    
                     <p class="text-[10px] md:text-xs font-mono font-black text-zinc-600 uppercase tracking-[1.5em] md:tracking-[2em] text-center font-black">Engineering the Future</p>
+                    
+                    <!-- PRIZE POOL ADDITION -->
+                    <div id="prize-pool-badge" class="relative mt-4 group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-orange-600 to-[var(--fire)] rounded-full blur opacity-25 group-hover:opacity-60 transition duration-1000"></div>
+                        <div class="relative flex items-center gap-3 bg-black/40 border border-white/10 backdrop-blur-md px-8 py-3 rounded-full">
+                            <i data-lucide="award" class="w-5 h-5 text-[var(--fire)] animate-pulse"></i>
+                            <span class="font-header text-sm md:text-lg tracking-widest italic shimmer-text">
+                                Total Prize Pool ₹25,000
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -421,7 +447,7 @@
             </div>
         </section>
 
-        <!-- 9. ORGANIZING TEAM (VANGUARD COLLECTIVE) -->
+        <!-- 9. ORGANIZING TEAM -->
         <section id="team" class="py-24 bg-zinc-950/60 border-t border-white/5">
             <div class="max-w-7xl mx-auto px-6">
                 <div class="text-center mb-20 space-y-4">
@@ -620,7 +646,8 @@
             heroTL.to("#hero-badge", { opacity: 1, y: -10, duration: 1.2, ease: "power4.out" })
                   .to("#hero-dept, #hero-association", { opacity: 1, y: -5, duration: 0.8, stagger: 0.3 }, "-=0.6")
                   .to("#hero-logo", { opacity: 1, scale: 1, duration: 1.5, ease: "expo.out" }, "-=1")
-                  .to("#hero-footer", { opacity: 1, y: 0, duration: 1, ease: "power4.out" }, "-=1.2");
+                  .to("#hero-footer", { opacity: 1, y: 0, duration: 1, ease: "power4.out" }, "-=1.2")
+                  .from("#prize-pool-badge", { opacity: 0, scale: 0.8, y: 20, duration: 1, ease: "back.out(1.7)" }, "-=0.5");
 
             ScrollTrigger.create({
                 start: 'top -80',
